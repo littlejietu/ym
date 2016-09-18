@@ -1,0 +1,91 @@
+<!DOCTYPE >
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- <script src="/res/admin/js/jquery.js"></script>
+<script src="/res/admin/js/jquery.validation.min.js"></script>
+<script src="/res/admin/js/admincp.js"></script>
+<script src="/res/admin/js/jquery.cookie.js"></script>
+<script src="/res/admin/js/common.js"></script>
+
+<script src="/res/lib/kindeditor/kindeditor-min.js"></script>
+<script src="/res/lib/kindeditor/lang/zh_CN.js"></script> -->
+
+<body>
+
+<!-- <form action="http://www.xshop.com/admin/message/save" method="post">
+<textarea name="message_content" rows="6">11111</textarea>
+<textarea name="sms_content" rows="6">2222</textarea>
+<textarea name="email_content" rows="6">3333</textarea>
+<input type="submit">
+</form> -->
+<form action="http://www.xshop.com/admin/goods_audit/save" method="post">
+<input name="cart[1][goods]" value="8,1,2,100|8,2,4,201">
+<input name="cart[1][coupon]" value="">
+<input name="cart[1][activity]" value="1">
+<br />
+<input name="cart[2][goods]" value="9,0,5">
+<input name="cart[2][coupon]" value="">
+<input name="cart[2][activity]" value="2">
+
+<input name="cart[2][activity]" value="2">
+
+<input type="submit">
+</form>
+<br />
+
+<form action="http://www.xshop.com/order/paying" method="post">
+<input name="orderIds" value="8,9">
+<input type="submit">
+</form>
+
+<a href="http://www.xshop.com/order/payed">payed</a>
+
+<script>
+//$(function(){
+    //getKindEditor_small_group(new Array('textarea[name="message_content"]','textarea[name="sms_content"]','textarea[name="email_content"]'));
+    //getKindEditor_small('textarea[name="message_content"]');
+//    test
+
+//});
+</script>
+
+上传图片：
+<form action="http://data.zooernet.com/api/m/upload/img" method="post" enctype="multipart/form-data">
+<input type="text" name="token" value="dec16c9952916b15751a4e352c6f1e4c">
+<input type="text" name="type" value="1">
+<input type="text" name="sign" value="8ffa96985c58f8f52221763268d03735">
+<input type="file" name="filedata">
+<input type="submit">
+</form>
+
+<br />
+111<span id="divAreaSelect"></span>111<input type="hidden" name="choose_cid" id="choose_cid" value="406">
+
+<script type="text/javascript" src="http://www.xshop.com/res/admin/js/jquery.js"></script>
+<script type="text/javascript" src="http://www.xshop.com/res/front/js/category.js"></script>
+<script type="text/javascript" src="http://www.xshop.com/res/front/js/multiselect.js"></script>
+
+
+<script type="text/javascript">
+if(typeof($('#choose_cid').val())!="undefined")
+			{//alert('dddd');
+		var chinese_id = 0;
+				var multiSelect         = new MultiSelect('divAreaSelect','choose_cid',dataMultiArea,dataAllArea);
+			    multiSelect.pLabels  = '省,市,县/区';
+			    //multiSelect.pClass   = 'w70 mr5';
+			    multiSelect.pNames  = 'province_id,city_id,area_id';
+			    multiSelect.pStart  = 1;
+			    multiSelect.init(chinese_id);
+			    var initId = $('#choose_cid').val();
+			    if(initId=='' || initId==0)
+			    	initId = chinese_id;
+			    multiSelect.select(initId);
+			    $("#divAreaSelect select").each(function(){
+			    	$(this).addClass("select-style");
+		           	//$(this).wrap('<span class="standard_select"><span class="select_shelter"></span></span></div>');
+		        });
+			}
+</script>
+
+</body>
+</html>

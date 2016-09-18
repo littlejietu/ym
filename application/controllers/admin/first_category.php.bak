@@ -1,0 +1,129 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class First_category extends CI_Controller
+{
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('First_category_model');
+        $this->load->model('Spu_model');
+    }
+
+    /**分类首页*/
+    public function index() {
+
+        $this->lang->load('admin_layout');
+        $this->lang->load('admin_prd_category');
+
+        $parent_id = $this->input->post('parent_id');
+        if(!$parent_id)
+            $parent_id = $this->input->get('parent_id');
+        $where = array();
+
+        if(!empty($parent_id)){
+            $where=array( 'parent_id' => $parent_id);
+        }else{
+            $where=array( 'parent_id' => 0);
+        }
+
+        $list = $this->First_category_model->get_list($where);
+        $res = $this->First_category_model->get_list();
+        foreach ($res as $key => $value)
+        {
+            $type[$value['parent_id']][] = $value;
+        }
+
+        $data = array(
+            'list' => $list,
+            'type' => $type,
+            'parent_id' => $parent_id,
+        );
+
+        $this->load->view('admin/first_category',$data);
+    }
+
+    /**修改*/
+    public function  add() {
+
+        $this->lang->load('admin_layout');
+        $this->lang->load('admin_prd_category');
+        $this->lang->load('admin_first');
+
+        $this->load->model('Spu_model');
+        $this->load->model('Spec_model');
+
+        $res = $this->First_category_model->get_list();
+
+        $id = $this->input->get('id');
+        $parent_id = $this->input->get('parent_id');
+        $info = array();
+        if ($id)
+        {
+            $info = $this->First_category_model->get_by_id($id);
+        }
+        $type = array(array());
+        foreach ($res as $key => $value)
+        {
+            $type[$value['parent_id']][] = $value;
+        }
+
+        $data = array(
+            'type' => $type,
+            'info' => $info,
+            'id'   => $id,
+        );
+        if ($parent_id)
+        {
+            $data['parent_id'] = $parent_id;
+        }
+        $this->load->view('admin/first_category_add',$data);
+    }
+
+    public function save() {
+
+        $adv_name       = $this->input->post('adv_name');
+        $ap_id          = $this->input->post('ap_id');
+        $icon_touch     = $this->input->post('icon_touch');
+        $icon_untouch   = $this->input->post('icon_untouch');
+        $sort           = $this->input->post('sort');
+        $adv_url        = $_POST['adv_url'];
+        $tag_color      = $this->input->post('tag_color');
+        $status         = $this->input->post('status');
+
+        $this->load->model('Spu_model');
+        $this->load->model('Spec_model');
+
+        if ($this->input->is_post()) {
+
+                $data = array(
+                    'name'           => $adv_name,
+                    'url'            => $adv_url,
+                    'icon_touch'     => $icon_touch,
+                    'icon_untouch'   => $icon_untouch,
+                    'parent_id'      => $ap_id,
+                    'sort'           => $sort,
+                    'tag_color'      => $tag_color,
+                    'status'         => $status,
+                    'level'          => 0,
+                );
+               //读取父级层级关系
+                $categiryInfo = $this->First_category_model->get_by_id($ap_id);
+                if(!empty($categiryInfo)){
+                    $data['level'] = $categiryInfo['level']+1;
+                }
+                $id = $this->input->post('id');
+                if (!empty($id)){
+                    $data['id'] = $id;
+                    $this->First_category_model->insert($data);
+                    redirect(ADMIN_SITE_URL.'/first_category/add?id='.$id);
+                } else {
+                    $id = $this->First_category_model->insert($data);
+                    redirect(ADMIN_SITE_URL.'/first_category/add?parent_id='.$ap_id);
+                }
+            }
+
+    }
+
+}
