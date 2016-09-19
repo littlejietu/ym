@@ -17,13 +17,13 @@ $config['AESAPPCLIENT_KEY'] = 'AesAppCLIENT_Xtt';
 );*/
 
 $config['url'] = array(
-	'base_site_url'=>'http://www.youmi1.cn',
-	'shop_site_url'=>'http://www.youmi1.cn/shop',
-	'seller_site_url'=>'http://www.youmi1.cn/seller',
-	'admin_site_url'=>'http://www.youmi1.cn/admin',
+	'base_site_url'=>'http://www.youmi1.com',
+	'shop_site_url'=>'http://www.youmi1.com/shop',
+	'seller_site_url'=>'http://www.youmi1.com/seller',
+	'admin_site_url'=>'http://www.youmi1.com/admin',
 	//'mobile_site_url'=>'http://data.zooernet.com/mobile',
-	'wap_site_url'=>'http://www.youmi1.cn/wap',
-	'upload_site_url'=>'http://www.youmi1.cn/upload',
+	'wap_site_url'=>'http://www.youmi1.com/wap',
+	'upload_site_url'=>'http://www.youmi1.com/upload',
 );
 
 
@@ -38,13 +38,13 @@ $config['basic_info'] = array(
 
 //develop
  $config['url'] = array(
-     'base_site_url'=>'http://www.youmi1.cn',
-     'shop_site_url'=>'http://www.youmi1.cn/shop',
-     'seller_site_url'=>'http://www.youmi1.cn/seller',
-     'admin_site_url'=>'http://www.youmi1.cn/admin',
-     //'mobile_site_url'=>'http://www.youmi1.cn/mobile',
-     'wap_site_url'=>'http://www.youmi1.cn/wap',
-     'upload_site_url'=>'http://www.youmi1.cn/upload',
+     'base_site_url'=>'http://www.youmi1.com',
+     'shop_site_url'=>'http://www.youmi1.com/shop',
+     'seller_site_url'=>'http://www.youmi1.com/seller',
+     'admin_site_url'=>'http://www.youmi1.com/admin',
+     //'mobile_site_url'=>'http://www.youmi1.com/mobile',
+     'wap_site_url'=>'http://www.youmi1.com/wap',
+     'upload_site_url'=>'http://www.youmi1.com/upload',
  );
 
 

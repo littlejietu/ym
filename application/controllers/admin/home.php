@@ -41,7 +41,7 @@ class Home extends MY_Admin_Controller {
 
 		$admin_info = $this->getAdminInfo();
 
-		$this->load->model('Admin_role_model');
+		$this->load->model('sys/Admin_role_model');
 		if ($this->admin_info['is_super'] != 1 && empty($this->permission)){
 			
             $gadmin = $this->Admin_role_model->get_by_id($this->admin_info['role_id']);
@@ -130,7 +130,7 @@ class Home extends MY_Admin_Controller {
 					'text' 	=> lang('nc_config') ),
 				2 => array(
 					'args' 	=> 'goods',
-					'text' 	=> lang('nc_goods')),
+					'text' 	=> '公司'),
 				/*3 => array(
 					'args' 	=> 'store',
 					'text' 	=> lang('nc_store')),*/
@@ -187,8 +187,9 @@ class Home extends MY_Admin_Controller {
 				),
 				2 => array(
 					'nav' => 'goods',
-					'text' => lang('nc_goods'),
+					'text' => '公司',
 					'list' => array(
+						array('args'=>',company,goods',									'text'=>'公司管理'),
 						array('args'=>',category,goods',								'text'=>lang('nc_class_manage')),
 						array('args'=>',spec_name,goods',								'text'=>'规格管理'),
 						//array('args'=>',brand,goods',									'text'=>lang('nc_brand_manage')),

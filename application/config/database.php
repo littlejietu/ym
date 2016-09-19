@@ -85,7 +85,7 @@ $db['default'] = array(
 
 	'database' => 'youmi',
 	'dbdriver' => 'mysqli',
-	'dbprefix' => 'y_',
+	'dbprefix' => 'x_',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
 	'cache_on' => FALSE,
