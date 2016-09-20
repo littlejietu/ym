@@ -1,121 +1,99 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Login extends CI_Controller {
 
-	public function index() {
+	public function __construct() {
 
-    	$this->load->view('seller/login');
-    }
-
-	/**
-	 *前台验证码
-	 */
-	public function captcha(){
-		$this->load->helper('captcha');
-		create_captcha(4,90,26,'verify');
+		parent::__construct();
 	}
 
+	public function index() {
+		$this->lang->load('admin_login');
+		$this->load->view('seller/login');
+	}
 
-	/**
-	 * 商家登录
-	 */
-	public function seller_login(){
+	public function login() {
+
+		$this->load->model('oil/Oil_admin_model');
 
 		if($this->input->post()) {
 
-			$this->load->model('Shop_model');
-			$this->load->model('User_pwd_model');
-			$this->load->model('User_model');
-			$arrRes 	= array();
 			$user_name 	= $this->input->post('user_name');
-			$pwd 		= $this->input->post('pwd');
-			$code 		= $this->input->post('code');
-
-			$this->load->helper('captcha');
+			$password 	=$this->input->post('pwd');
+			$captcha	= $this->input->post('captcha');
 
 			#region CI自带验证
-
 			$config = array(
-				array(
-					'field'=>'user_name',
-					'label'=>'用户名',
-					'rules'=>'trim|required',
-				),
-				array(
-					'field'=>'pwd',
-					'label'=>'密码',
-					'rules'=>'trim|required',
-				),
-				array(
-					'field'=>'code',
-					'label'=>'密码',
-					'rules'=>'trim|required',
-				)
+					array(
+						'field'=>'user_name',
+						'label'=>'用户名',
+						'rules'=>'trim|required',
+					),
+					array(
+						'field'=>'pwd',
+						'label'=>'密码',
+						'rules'=>'trim|required',
+					),
+					array(
+						'field'=>'captcha',
+						'label'=>'密码',
+						'rules'=>'trim|required',
+					)
 			);
 
 			$this->form_validation->set_rules($config);
+			#endregion
 
-		#endregion
+			$this->load->helper('captcha');
+			$this->load->library('encrypt');
+
 
 			//验证验证码是否真正确
-			if(!check_captcha($code,'verify')){
-				$arrRes['code'] = '-1';
-				$arrRes['msg'] = 'CODE_ERROR';
-				showMessage('验证码不能为空！','/seller/login');
+			if(!check_captcha($captcha,'verify_seller')){
+				showMessage('验证码不正确',SELLER_SITE_URL.'/login');
+				exit;
 			}
+
+			$arrRes = array('code'=>'SUCCESS','msg'=>'','jumpUrl'=>SELLER_SITE_URL.'/login');
+
 			//查询商家表信息
-			$shopInfo =	$this->Shop_model->get_by_where('seller_username = "' .$user_name.'"');
+			$adminInfo =	$this->Oil_admin_model->get_by_where("username='$user_name'");
 
 			//判断用户名是否正确
-			if(empty($shopInfo)) {
-				$arrRes['code'] = '-1';
-				$arrRes['msg'] = 'SHOP_ERROR';
-				showMessage('用户名或密码错误1！','/seller/login');
+			if(empty($adminInfo)) {
+				$arrRes['code'] = 'USER_PWD_ERR';
+				$arrRes['msg'] = '用户名不存在！';
+			}elseif($adminInfo['password'] !=  md5(trim($password))){
+				$arrRes['code'] = 'PWD_ERROR';
+				$arrRes['msg'] = '用户名或密码错误！';
 			}
 
-			//查询用户密码表信息
-			$userPwdInfo =	$this->User_pwd_model->get_by_id($shopInfo['seller_userid']);
-			if(empty($userPwdInfo)) {
-
-				$arrRes['code'] = '-1';
-				$arrRes['msg'] = 'USERINFO_ERROR';
-				showMessage('用户名或密码错误2！','/seller/login');
+			if($arrRes['code']!='SUCCESS'){
+				showMessage($arrRes['msg'],$arrRes['jumpUrl']);
+				exit;
 			}
 
-			//判断输入密码是否正确
-			if(md5($pwd)!=$userPwdInfo['pwd']) {
+			//会员登录次数+1
+			$this->Oil_admin_model->update_by_id($adminInfo['id'],array('login_num' => intval($adminInfo['login_num']+1),'login_time'=>time() ));
 
-				$arrRes['code'] = '-1';
-				$arrRes['msg'] = 'PWD_ERROR';
-				showMessage('用户名或密码错误3！','/seller/login');
-			}
-
-			//查询用户详细信息
-			$userInfo =	$this->User_model->get_by_id($shopInfo['seller_userid']);
-			$_SESSION['user_id']	= $userInfo['user_id'];
-			$_SESSION['name']		= $userInfo['name'];
-			$_SESSION['shop_name']	= $shopInfo['name'];
-			$_SESSION['user_name']	= $userInfo['user_name'];
-			$_SESSION['user_logo']	= $userInfo['logo'];
-			$_SESSION['shop_id']	= $shopInfo['id'];
-
-			$arrRes['code'] = '1';
-			$arrRes['msg'] = 'SUCCESS';
-
-//			showMessage('登录成功！','/seller/home');
-			redirect(SELLER_SITE_URL.'/home');
+			//$this->systemSetKey();
+			$this->load->library('encrypt');
+			$this->load->library('session');
+			$user = array('admin_username'=>$adminInfo['username'], 'admin_name'=>$adminInfo['name'], 'admin_id'=>$adminInfo['id'],'site_ids'=>$adminInfo['site_ids'], 'role_id'=>$adminInfo['role_id'],'is_super'=>$adminInfo['is_super']);
+			//$this->session('sys_key',$this->encrypt->encode(serialize($user),C('basic_info.MD5_KEY')),36000);
+			$this->session->set_userdata('seller_key',$this->encrypt->encode(serialize($user),C('basic_info.MD5_KEY')),36000);
+			// set_cookie('admin_id',$adminInfo['id'],3600);
+			// set_cookie('admin_name',$adminInfo['name'],3600);
+			// set_cookie('is_super',$adminInfo['is_super'],3600);
+			// set_cookie('role_id',$adminInfo['role_id'],3600);
+			//print_r(get_cookie('sys_key') );die;
+			redirect(SELLER_SITE_URL);
 		}
+		exit;
 	}
 
 	public function logout(){
-
-		$_SESSION['user_id'] = '';
-		$_SESSION['name'] = '';
-		$_SESSION['user_name'] = '';
-		$_SESSION['user_logo'] = '';
-		$_SESSION['shop_id'] = '';
-
-		redirect(SELLER_SITE_URL);
+		$this->session->set_userdata('seller_key',null,-1);
+		redirect(SELLER_SITE_URL.'/login');
 	}
-
 }

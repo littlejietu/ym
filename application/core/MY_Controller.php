@@ -479,167 +479,104 @@ class BaseSellerController extends CI_Controller {
 
     public function __construct(){
     	parent::__construct();
-
-        $this->load->model('Shop_model');
-
-
-        $user_id = !empty($_SESSION['user_id'])?$_SESSION['user_id']:''; 
-        if(!empty($user_id)){
-             $this->loginUser = array('shop_id'=>$_SESSION['shop_id'],'user_id'=>$_SESSION['user_id'],'user_name'=>$_SESSION['user_name'],'user_logo'=>$_SESSION['user_logo'],'name'=>$_SESSION['name'],'shop_name'=>$_SESSION['shop_name']);
-
-        }else{
-            redirect(SELLER_SITE_URL.'/login');
+        $this->load->library('encrypt');
+        $this->load->library('session');
+        $this->seller_info = $this->sellerLogin();
+        if (empty($this->seller_info['admin_id'])||!$this->checkSellerPermission()){
+           // 验证权限
+           redirect(SELLER_SITE_URL.'/login1');
         }
-
-        //$this->load->lang(array('common','shop_layout','member_layout'));
-        //if(!C('site_status')) halt(C('closed_reason'));
-        Tpl::setDir('seller');
-        Tpl::setLayout('seller_layout');
-
-        //输出会员信息
-        //$this->getMemberAndGradeInfo(false);
-
-        //Tpl::output('nav_list', rkcache('nav',true));
-        if (true || $_GET['act'] !== 'seller_login') {
-        	/*
-            if(empty($_SESSION['seller_id'])) {
-                @header('location: index.php?act=seller_login&op=show_login');die;
-            }
-
-            // 验证店铺是否存在
-            $model_store = Model('store');
-            $this->store_info = $model_store->getStoreInfoByID($_SESSION['store_id']);
-            if (empty($this->store_info)) {
-                @header('location: index.php?act=seller_login&op=show_login');die;
-            }
-
-            // 店铺关闭标志
-            if (intval($this->store_info['store_state']) === 0) {
-                Tpl::output('store_closed', true);
-                Tpl::output('store_close_info', $this->store_info['store_close_info']);
-            }
-
-            // 店铺等级
-            if (checkPlatformStore()) {
-                $this->store_grade = array(
-                    'sg_id' => '0',
-                    'sg_name' => '自营店铺专属等级',
-                    'sg_goods_limit' => '0',
-                    'sg_album_limit' => '0',
-                    'sg_space_limit' => '999999999',
-                    'sg_template_number' => '6',
-                    // see also store_settingControl.themeOp()
-                    // 'sg_template' => 'default|style1|style2|style3|style4|style5',
-                    'sg_price' => '0.00',
-                    'sg_description' => '',
-                    'sg_function' => 'editor_multimedia',
-                    'sg_sort' => '0',
-                );
-            } else {
-                $store_grade = rkcache('store_grade', true);
-                $this->store_grade = $store_grade[$this->store_info['grade_id']];
-            }
-
-            if ($_SESSION['seller_is_admin'] !== 1 && $_GET['act'] !== 'seller_center' && $_GET['act'] !== 'seller_logout') {
-                if (!in_array($_GET['act'], $_SESSION['seller_limits'])) {
-                    showMessage('没有权限', '', '', 'error');
-                }
-            }
-            
-
-            // 卖家菜单
-            Tpl::output('menu', $_SESSION['seller_menu']);
-            // 当前菜单
-            $current_menu = $this->_getCurrentMenu($_SESSION['seller_function_list']);
-            Tpl::output('current_menu', $current_menu);
-            // 左侧菜单
-            if($_GET['act'] == 'seller_center') {
-                if(!empty($_SESSION['seller_quicklink'])) {
-                    $left_menu = array();
-                    foreach ($_SESSION['seller_quicklink'] as $value) {
-                        $left_menu[] = $_SESSION['seller_function_list'][$value];
-                    }
-                }
-            } else {
-                $left_menu = $_SESSION['seller_menu'][$current_menu['model']]['child'];
-            }
-            Tpl::output('left_menu', $left_menu);
-            Tpl::output('seller_quicklink', $_SESSION['seller_quicklink']);
-
-            $this->checkStoreMsg();
-
-            */
-        }
-    }
-
-    protected function getSellerMenuList($is_admin, $limits) {
-        $seller_menu = array();
-        if (intval($is_admin) !== 1) {
-            $menu_list = $this->_getMenuList();
-            foreach ($menu_list as $key => $value) {
-                foreach ($value['child'] as $child_key => $child_value) {
-                    if (!in_array($child_value['act'], $limits)) {
-                        unset($menu_list[$key]['child'][$child_key]);
-                    }
-                }
-
-                if(count($menu_list[$key]['child']) > 0) {
-                    $seller_menu[$key] = $menu_list[$key];
-                }
-            }
-        } else {
-            $seller_menu = $this->_getMenuList();
-        }
-        $seller_function_list = $this->_getSellerFunctionList($seller_menu);
-        return array('seller_menu' => $seller_menu, 'seller_function_list' => $seller_function_list);
-    }
-
-    private function _getCurrentMenu($seller_function_list) {
-        $current_menu = $seller_function_list[$_GET['act']];
-        if(empty($current_menu)) {
-            $current_menu = array(
-                'model' => 'index',
-                'model_name' => '首页'
-            );
-        }
-        return $current_menu;
-    }
-
-    private function _getSellerFunctionList($menu_list) {
-        $format_menu = array();
-        foreach ($menu_list as $key => $menu_value) {
-            foreach ($menu_value['child'] as $submenu_value) {
-                $format_menu[$submenu_value['act']] = array(
-                    'model' => $key,
-                    'model_name' => $menu_value['name'],
-                    'name' => $submenu_value['name'],
-                    'act' => $submenu_value['act'],
-                    'op' => $submenu_value['op'],
-                );
-            }
-        }
-        return $format_menu;
+        
+        
     }
 
     /**
-     * 商家消息数量
+     * 取得当前管理员信息
+     *
+     * @param
+     * @return 数组类型的返回结果
      */
-    // private function checkStoreMsg() {//判断cookie是否存在
-    //     $cookie_name = 'storemsgnewnum'.$_SESSION['seller_id'];
-    //     if (cookie($cookie_name) != null && intval(cookie($cookie_name)) >=0){
-    //         $countnum = intval(cookie($cookie_name));
-    //     }else {
-    //         $where = array();
-    //         $where['store_id'] = $_SESSION['store_id'];
-    //         $where['sm_readids'] = array('notlike', '%,'.$_SESSION['seller_id'].',%');
-    //         if ($_SESSION['seller_smt_limits'] !== false) {
-    //             $where['smt_code'] = array('in', $_SESSION['seller_smt_limits']);
-    //         }
-    //         $countnum = Model('store_msg')->getStoreMsgCount($where);
-    //         setNcCookie($cookie_name,intval($countnum),2*3600);//保存2小时
-    //     }
-    //     Tpl::output('store_msg_num',$countnum);
-    // }
+    protected final function getSellerInfo(){
+        return $this->seller_info;
+    }
+
+    /**
+     * 系统后台登录验证
+     *
+     * @param
+     * @return array 数组类型的返回结果
+     */
+    function sellerLogin(){
+        //取得cookie内容，解密，和系统匹配
+        $user = unserialize($this->encrypt->decode($this->session->userdata('seller_key'),C('basic_info.MD5_KEY') ) );
+        if (!key_exists('role_id',(array)$user) || !isset($user['is_super']) || empty($user['admin_username']) || empty($user['admin_id']) || empty($user['site_ids']) ){
+            @header('Location: '.SELLER_SITE_URL.'/login');exit;
+        }else {
+            //$this->session->set_userdata('seller_key',$this->encrypt->encode(serialize($user),C('basic_info.MD5_KEY')),36000);
+        }
+        return $user;
+
+        /*return array(
+            'admin_id'      => !empty($_COOKIE['admin_id'])?$_COOKIE['admin_id']:'',
+            'admin_name'    => !empty($_COOKIE['admin_name'])?$_COOKIE['admin_name']:'',
+            'is_super'      => !empty($_COOKIE['is_super'])?$_COOKIE['is_super']:'',
+            'role_id'       => !empty($_COOKIE['role_id'])?$_COOKIE['role_id']:'',
+        );*/
+    }
+
+    /**
+     * 验证当前管理员权限是否可以进行操作
+     */
+    function checkSellerPermission($link_nav = null){
+        if ($this->seller_info['is_super'] == 1)return true;
+
+        /*
+        $act = $this->router->fetch_class();  
+        $op = $this->router->fetch_method(); 
+        
+        if (empty($this->permission)){
+            $this->load->model('oil/Admin_role_model');
+            
+            $gadmin = $this->Admin_role_model->get_by_id($this->seller_info['role_id']);
+            $permission = $this->encrypt->decode($gadmin['limits']);
+            $this->permission = $permission = explode('|',$permission);
+        }else{
+            $permission = $this->permission;
+        }
+        //显示隐藏小导航，成功与否都直接返回
+        if (is_array($link_nav)){
+            if (!in_array("{$link_nav['act']}.{$link_nav['op']}",$permission) && !in_array($link_nav['act'],$permission)){
+                return false;
+            }else{
+                return true;
+            }
+        }
+
+        //以下几项不需要验证
+        $tmp = array('index','dashboard','login','common','home');
+        if (in_array($act,$tmp)) return true;
+        if (in_array($act,$permission) || in_array("$act.$op",$permission)){
+            return true;
+        }else{
+            $extlimit = array('ajax','export_step1');
+            if (in_array($op,$extlimit) && (in_array($act,$permission) || strpos(serialize($permission),'"'.$act.'.'))){
+                return true;
+            }
+            $bResult = false;
+            //带前缀的都通过
+            foreach ($permission as $v) {
+                if (!empty($v) && strpos("$act.$op",$v.'_') !== false) {
+                    $bResult = true;
+                    break;
+                }
+            }
+            return $bResult;
+        }
+        */
+        return false;
+        
+    }
+    
 
 }
 

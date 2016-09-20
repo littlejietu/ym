@@ -1,139 +1,286 @@
-<!doctype html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<meta charset="utf-8">
-<title>商家中心</title>
-  <?php echo _get_html_cssjs('seller_css','base.css,seller_center.css,perfect-scrollbar.min.css,jquery.qtip.min.css','css');?>
-  <?php echo _get_html_cssjs('font','font-awesome/css/font-awesome.min.css','css');?>
-<!--[if IE 7]>
-  <?php echo _get_html_cssjs('seller_css','font-awesome-ie7.min.css','css');?>
-<![endif]-->
-<script>
-var COOKIE_PRE = '<?php echo COOKIE_PRE;?>';
-var _CHARSET = '<?php echo strtolower(CHARSET);?>';
-var SITEURL = '<?php echo BASE_SITE_URL;?>';
-var RESOURCE_SITE_URL = '<?php //echo RESOURCE_SITE_URL;?>';
-var SHOP_RESOURCE_SITE_URL = '<?php //echo SHOP_RESOURCE_SITE_URL;?>';
-var SHOP_TEMPLATES_URL = '<?php //echo SHOP_TEMPLATES_URL;?>';
-</script>
-<?php echo _get_html_cssjs('seller_js','jquery.js,seller.js,waypoints.js,jquery-ui/jquery.ui.js,jquery.validation.min.js,common.js,member.js','js');?>
-<script type="text/javascript" src="<?php echo _get_cfg_path('lib');?>dialog/dialog.js" id="dialog_js" charset="utf-8"></script>
+<meta http-equiv="Content-Type" content="text/html;" charset="<?php echo CHARSET?>">
+<title><?php echo $output['html_title'];?></title>
+
+<link href="<?php echo _get_cfg_path('seller').TPL_ADMIN_NAME;?>css/skin_0.css" type="text/css" rel="stylesheet" id="cssfile" />
+<?php echo _get_html_cssjs('seller_js','jquery.js,jquery.validation.min.js','js');?>
 
 <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!--[if lt IE 9]>
-	<?php echo _get_html_cssjs('seller_js','html5shiv.js,respond.min.js','js');?>
+    <?php echo _get_html_cssjs('seller_js','html5shiv.js,respond.min.js','js');?>
 <![endif]-->
-<!--[if IE 6]>
-<?php echo _get_html_cssjs('seller_js','IE6_MAXMIX.js,IE6_PNG.js','js');?>
 <script>
-DD_belatedPNG.fix('.pngFix');
+//
+$(document).ready(function () {
+    $('span.bar-btn').click(function () {
+  $('ul.bar-list').toggle('fast');
+    });
+});
+
+$(document).ready(function(){
+  var pagestyle = function() {
+    var iframe = $("#workspace");
+    var h = $(window).height() - iframe.offset().top;
+    var w = $(window).width() - iframe.offset().left;
+    if(h < 300) h = 300;
+    if(w < 973) w = 973;
+    iframe.height(h);
+    iframe.width(w);
+  }
+  pagestyle();
+  $(window).resize(pagestyle);
+  //turn location
+  //if($.cookie('now_location_act') != null){
+    //openItem($.cookie('now_location_op')+','+$.cookie('now_location_act')+','+$.cookie('now_location_nav'));
+  //}else{
+    $('#mainMenu>ul').first().css('display','block');
+    //第一次进入后台时，默认定到欢迎界面
+    $('#item_welcome').addClass('selected');
+    $('#workspace').attr('src','<?php echo SELLER_SITE_URL?>/dashboard/welcome');
+  //}
+  $('#iframe_refresh').click(function(){
+    var fr = document.frames ? document.frames("workspace") : document.getElementById("workspace").contentWindow;
+    fr.location.reload();
+  });
+
+});
+//收藏夹
+function addBookmark(url, label) {
+    if (document.all)
+    {
+        window.external.addFavorite(url, label);
+    }
+    else if (window.sidebar)
+    {
+        window.sidebar.addPanel(label, url, '');
+    }
+}
+
+
+function openItem(args){
+    closeBg();
+  //cookie
+
+  //if($.cookie('<?php echo COOKIE_PRE?>seller_key') === null){
+    //location.href = 'index.php?act=login&op=login';
+    //return false;
+  //}
+
+  spl = args.split(',');
+  op  = spl[0];
+  try {
+    act = spl[1];
+    nav = spl[2];
+  }
+  catch(ex){}
+  if (typeof(act)=='undefined'){var nav = args;}
+  $('.actived').removeClass('actived');
+  $('#nav_'+nav).addClass('actived');
+
+  $('.selected').removeClass('selected');
+
+  //show
+  $('#mainMenu ul').css('display','none');
+  $('#sort_'+nav).css('display','block');
+
+  if (typeof(act)=='undefined'){
+    //顶部菜单事件
+    html = $('#sort_'+nav+'>li>dl>dd>ol>li').first().html();
+    str = html.match(/openItem\('(.*)'\)/ig);
+    arg = str[0].split("'");
+    spl = arg[1].split(',');
+    op  = spl[0];
+    act = spl[1];
+    nav = spl[2];
+    first_obj = $('#sort_'+nav+'>li>dl>dd>ol>li').first().children('a');
+    $(first_obj).addClass('selected');
+    //crumbs
+    $('#crumbs').html('<span>'+$('#nav_'+nav+' > span').html()+'</span><span class="arrow">&nbsp;</span><span>'+$(first_obj).text()+'</span>');
+  }else{
+    //左侧菜单事件
+    //location
+    $.cookie('now_location_nav',nav);
+    $.cookie('now_location_act',act);
+    $.cookie('now_location_op',op);
+    $("a[name='item_"+op+act+"']").addClass('selected');
+    //crumbs
+    $('#crumbs').html('<span>'+$('#nav_'+nav+' > span').html()+'</span><span class="arrow">&nbsp;</span><span>'+$('#item_'+op+act).html()+'</span>');
+  }
+  src = '<?php echo SELLER_SITE_URL;?>/'+act+'/'+op;
+  $('#workspace').attr('src',src);
+
+}
+
+$(function(){
+    bindAdminMenu();
+    })
+    function bindAdminMenu(){
+
+    $("[nc_type='parentli']").click(function(){
+      var key = $(this).attr('dataparam');
+      if($(this).find("dd").css("display")=="none"){
+        $("[nc_type='"+key+"']").slideDown("fast");
+        $(this).find('dt').css("background-position","-322px -170px");
+        $(this).find("dd").show();
+      }else{
+        $("[nc_type='"+key+"']").slideUp("fast");
+        $(this).find('dt').css("background-position","-483px -170px");
+        $(this).find("dd").hide();
+      }
+    });
+  }
 </script>
-<script>
-// <![CDATA[
-if((window.navigator.appName.toUpperCase().indexOf("MICROSOFT")>=0)&&(document.execCommand))
-try{
-document.execCommand("BackgroundImageCache", false, true);
-   }
-catch(e){}
-// ]]>
+<script type="text/javascript">
+//显示灰色JS遮罩层
+function showBg(ct,content){
+var bH=$("body").height();
+var bW=$("body").width();
+var objWH=getObjWh(ct);
+$("#pagemask").css({width:bW,height:bH,display:"none"});
+var tbT=objWH.split("|")[0]+"px";
+var tbL=objWH.split("|")[1]+"px";
+$("#"+ct).css({top:tbT,left:tbL,display:"block"});
+$(window).scroll(function(){resetBg()});
+$(window).resize(function(){resetBg()});
+}
+function getObjWh(obj){
+var st=document.documentElement.scrollTop;//滚动条距顶部的距离
+var sl=document.documentElement.scrollLeft;//滚动条距左边的距离
+var ch=document.documentElement.clientHeight;//屏幕的高度
+var cw=document.documentElement.clientWidth;//屏幕的宽度
+var objH=$("#"+obj).height();//浮动对象的高度
+var objW=$("#"+obj).width();//浮动对象的宽度
+var objT=Number(st)+(Number(ch)-Number(objH))/2;
+var objL=Number(sl)+(Number(cw)-Number(objW))/2;
+return objT+"|"+objL;
+}
+function resetBg(){
+var fullbg=$("#pagemask").css("display");
+if(fullbg=="block"){
+var bH2=$("body").height();
+var bW2=$("body").width();
+$("#pagemask").css({width:bW2,height:bH2});
+var objV=getObjWh("dialog");
+var tbT=objV.split("|")[0]+"px";
+var tbL=objV.split("|")[1]+"px";
+$("#dialog").css({top:tbT,left:tbL});
+}
+}
+
+//关闭灰色JS遮罩层和操作窗口
+function closeBg(){
+$("#pagemask").css("display","none");
+$("#dialog").css("display","none");
+}
 </script>
-<![endif]-->
-<?php //echo _get_html_cssjs('seller_js','ToolTip.js','js');?>
+<script type="text/javascript">
+$(function(){
+    var $li =$("#skin li");
+    $li.click(function(){
+      $("#"+this.id).addClass("selected").siblings().removeClass("selected");
+      $("#cssfile").attr("href","<?php echo _get_cfg_path('seller').TPL_ADMIN_NAME;?>css/"+ (this.id) +".css");
+      $.cookie( "MyCssSkin" ,  this.id , { path: '/', expires: 10 });
+
+      $('iframe').contents().find('#cssfile2').attr("href","<?php echo _get_cfg_path('seller').TPL_ADMIN_NAME;?>css/"+ (this.id) +".css");
+    });
+
+    /*
+    var cookie_skin = $.cookie( "MyCssSkin");
+    if (cookie_skin) {
+    $("#"+cookie_skin).addClass("selected").siblings().removeClass("selected");
+    $("#cssfile").attr("href","<?php echo _get_cfg_path('seller').TPL_ADMIN_NAME;?>css/"+ cookie_skin +".css");
+    $.cookie( "MyCssSkin" ,  cookie_skin  , { path: '/', expires: 10 });
+    }
+    */
+});
+function addFavorite(url, title) {
+  try {
+    window.external.addFavorite(url, title);
+  } catch (e){
+    try {
+      window.sidebar.addPanel(title, url, '');
+          } catch (e) {
+      showDialog("<?php echo lang('nc_to_favorite');?>", 'notice');
+    }
+  }
+}
+</script>
+
 </head>
-<body>
-<?php $this->load->view('seller/inc/header');?>
 
-<div class="ncsc-layout wrapper">
-  <div id="layoutLeft" class="ncsc-layout-left">
-    <div id="sidebar" class="sidebar">
-      <div class="column-title" id="main-nav"><span class="ico-index"></span>
-        <h2>首页</h2>
-      </div>
-      <div class="column-menu">
-        <!-- <ul id="seller_center_left_menu">
-                              <div class="add-quickmenu"><a href="javascript:void(0);"><i class="icon-plus"></i>添加常用功能菜单</a></div>
-                            </ul> -->
-      </div>
-    </div>
-  </div>
-  <div id="layoutRight" class="ncsc-layout-right">
-    <div class="ncsc-path"><i class="icon-desktop"></i>商家管理中心<i class="icon-angle-right"></i>首页<i class="icon-angle-right"></i></div>
-    <div class="main-content" id="mainContent">
-
-<div class="ncsc-index">
-  <div class="top-container">
-    <div class="basic-info">
-      <dl class="ncsc-seller-info">
-        <dt class="seller-name">
-          <h3><?php echo $output['loginUser']['shop_name']?></h3>
-          <h5>(用户名：<?php echo $output['loginUser']['seller_username']?>)</h5>
-        </dt>
-      </dl>
-
-    </div>
-  </div>
-  <div class="seller-cont">
-    <div class="container type-a">
-      <div class="hd">
-        <h3>店铺及商品提示</h3>
-        <h5>您需要关注的店铺信息以及待处理事项</h5>
-      </div>
-      <div class="content">
-        <dl class="focus">
-          <dt>店铺商品发布情况：</dt>
-          <dd title="已发布/可传商品"><em id="nc_goodscount">0</em>&nbsp; </dd>
-        </dl>
-        <ul>
-          <li><a href="<?php echo SELLER_SITE_URL;?>/goods">出售中 <strong id="nc_online"></strong></a></li>
-          <!-- <li><a href="<?php //echo SELLER_SITE_URL;?>/goods?status=2">仓库中已审核 <strong id="nc_offline"></strong></a></li> -->
-          <!-- <li><a href="index.php?act=store_goods_offline&op=index&type=lock_up">违规下架 <strong id="nc_lockup"></strong></a></li> -->
-        </ul>
-      </div>
-    </div>
-    <div class="container type-a">
-      <div class="hd">
-        <h3>交易提示</h3>
-        <h5>您需要立即处理的交易订单</h5>
-      </div>
-      <div class="content">
-        <dl class="focus">
-          <dt>近期售出：</dt>
-          <dd><a href="<?php echo SELLER_SITE_URL;?>/order">交易中的订单 <strong id="nc_progressing"></strong></a></dd>
-          
-        </dl>
-        <ul>
-          <li><a href="<?php echo SELLER_SITE_URL;?>/order?type=1"> 待付款 <strong id="nc_payment"></strong></a></li>
-          <li><a href="<?php echo SELLER_SITE_URL;?>/order?type=2"> 待发货 <strong id="nc_delivery"></strong></a></li>
-          <li><a href="<?php echo SELLER_SITE_URL;?>/order?type=3"> 已发货 <strong id="nc_refund_lock"></strong></a></li>
-          <li><a href="<?php echo SELLER_SITE_URL;?>/order?type=5"> 已取消 <strong id="nc_return_lock"></strong></a></li>
-        </ul>
-      </div>
-    </div>
-    
-    
+<body style="min-width: 1200px; margin: 0px; ">
+<div id="pagemask"></div>
+<div id="dialog" style="display:none">
+  <div class="title">
+    <h3><?php echo lang('nc_admin_navigation');?></h3>
+    <span><a href="JavaScript:void(0);" onclick="closeBg();"><?php echo lang('nc_close');?></a></span> </div>
+  <div class="content">
+  <?php foreach ($output['map_nav'] as $k=>$v) {?>
+  <dl>
+  <dt><?php echo $v['text'];?></dt>
+    <?php foreach ($v['list'] as $key=>$value) {?>
+    <dd><a href="javascript:void(0)" onclick="openItem('<?php echo $value['args']?>')"><?php echo $value['text'];?></a></dd>
+    <?php }?>
+     </dl>
+  <?php }?>
   </div>
 </div>
-<script>
-// $(function(){
-// 	var timestamp=Math.round(new Date().getTime()/1000/60);//异步URL一分钟变化一次
-//     $.getJSON('index.php?act=seller_center&op=statistics&rand='+timestamp, null, function(data){
-//         if (data == null) return false;
-//         for(var a in data) {
-//             if(data[a] != 'undefined' && data[a] != 0) {
-//                 var tmp = '';
-//                 if (a != 'goodscount' && a != 'imagecount') {
-//                     $('#nc_'+a).parents('a').addClass('num');
-//                 }
-//                 $('#nc_'+a).html(data[a]);
-//             }
-//         }
-//     });
-// });
-</script>
-    </div>
-  </div>
-</div>
+<table style="width: 100%;" id="frametable" height="100%" width="100%" cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td colspan="2" height="90" class="mainhd"><div class="layout-header"> <!-- Title/Logo - can use text instead of image -->
+          <div id="title"><a href="index.php"></a></div>
+          <!-- Top navigation -->
+          <div id="topnav" class="top-nav">
+            <ul>
+              <li class="adminid" title="<?php echo lang('nc_hello');?>:<?php echo $output['admin_info']['admin_name'];?>"><?php echo lang('nc_hello');?>&nbsp;:&nbsp;<strong><?php echo $output['admin_info']['admin_name'];?></strong></li>
+              <li><a href="<?php echo SELLER_SITE_URL;?>/common/modifypw" target="workspace" ><span><?php echo lang('nc_modifypw'); ?></span></a></li>
+              <li><a href="<?php echo SELLER_SITE_URL;?>/login/logout" title="<?php echo lang('nc_logout');?>"><span><?php echo lang('nc_logout');?></span></a></li>
+              <!-- <li><a href="<?php //echo BASE_SITE_URL;?>" target="_blank" title="<?php //echo lang('nc_homepage');?>"><span><?php //echo lang('nc_homepage');?>1111</span></a></li> -->
+            </ul>
+          </div>
+          <!-- End of Top navigation -->
+          <!-- Main navigation -->
+          <nav id="nav" class="main-nav">
+            <ul>
+              <?php echo $output['top_nav']; ?>
+            </ul>
+          </nav>
+          <div class="loca"><strong><?php echo lang('nc_loca');?>:</strong>
+            <div id="crumbs" class="crumbs"><span><?php echo lang('nc_console');?></span><span class="arrow">&nbsp;</span><span><?php echo lang('nc_welcome_page');?></span> </div>
+          </div>
+          <div class="toolbar">
+            <!-- <ul id="skin" class="skin"><span><?php //echo lang('nc_skin_peeler');?></span>
+              <li id="skin_0" class="" title="<?php //echo lang('nc_default_style');?>"></li>
+              <li id="skin_1" class="" title="<?php //echo lang('nc_mac_style');?>"></li>
+            </ul> -->
+            <div class="sitemap"><a id="siteMapBtn" href="#rhis" onclick="showBg('dialog','dialog_content');"><span><?php echo lang('nc_sitemap');?></span></a></div>
+            <!-- <div class="toolmenu"><span class="bar-btn"></span>
+              <ul class="bar-list">
+                <li><a onclick="openItem('clear,cache,setting');" href="javascript:void(0)"><?php //echo lang('nc_update_cache');?></a></li>
+                <li><a href="<?php //echo ADMIN_SITE_URL;?>" id="iframe_refresh"><?php //echo lang('nc_refresh');?><?php //echo lang('nc_admincp'); ?></a></li>
+                <li><a href="<?php //echo ADMIN_SITE_URL;?>" title="<?php //echo lang('nc_admincp'); ?>-<?php //echo $output['html_title'];?>" rel="sidebar" onclick="addFavorite('<?php //echo ADMIN_SITE_URL;?>', '<?php //echo lang('nc_admincp'); ?>-<?php //echo $output['html_title'];?>');return false;"><?php //echo lang('nc_favorite'); ?><?php //echo lang('nc_admincp'); ?></a></li>
 
-<?php $this->load->view('seller/inc/footer');?>
+                <li><a href="index.php?act=setting&op=exetarget" target="_blank">执行计划任务</a></li>
+              </ul>
+            </div> -->
+          </div>
+        </div>
+        <div >
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="menutd" valign="top" width="161">
+        <div id="mainMenu" class="main-menu">
+          <?php echo $output['left_nav'];?>
+        </div>
+        <div class="copyright" style="display:none"></div></td>
+      <td valign="top" width="100%"><iframe src="" id="workspace" name="workspace" style="overflow: visible;" frameborder="0" width="100%" height="100%" scrolling="yes" onload="window.parent"></iframe></td>
+    </tr>
+  </tbody>
+</table>
 </body>
 </html>
