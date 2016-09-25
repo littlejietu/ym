@@ -281,7 +281,7 @@ function showMessage($msg,$url='',$show_type='html',$msg_type='succ',$is_show=1,
 			Tpl::output('url',$url);
 			Tpl::output('msg_type',$msg_type);
 			Tpl::output('is_show',$is_show);
-			Tpl::showpage('msg','msg_layout','',$time);
+			Tpl::showpage('inc/msg','msg_layout','',$time);
 	}
 	exit;
 }

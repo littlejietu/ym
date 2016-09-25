@@ -31,7 +31,7 @@
     <div class="input">
       <label>用户名</label>
       <span class="repuired"></span>
-      <input name="user_name" type="text" autocomplete="off" class="text" autofocus>
+      <input name="user_name" id="user_name" type="text" autocomplete="off" class="text" autofocus>
       <span class="ico"><i class="icon-user"></i></span> </div>
     <div class="input">
       <label>密码</label>
@@ -70,6 +70,9 @@
   function onCaptchaUp(){
     $("#codeimage").attr('src','<?php echo BASE_SITE_URL;?>/public/common/captcha_seller?'+Math.random());
   }
+
+  if(top.location!=this.location) top.location=this.location;
+  $('#user_name').focus();
 
   </script>
 </div>

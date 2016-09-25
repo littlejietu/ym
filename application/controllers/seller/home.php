@@ -36,10 +36,10 @@ class Home extends BaseSellerController {
 
 		$admin_info = $this->getSellerInfo();
 
-		$this->load->model('Admin_role_model');
+		$this->load->model('oil/O_admin_role_model');
 		if ($admin_info['is_super'] != 1 && empty($this->permission)){
 			
-            $gadmin = $this->Admin_role_model->get_by_id($admin_info['role_id']);
+            $gadmin = $this->O_admin_role_model->get_by_id($admin_info['role_id']);
 			$permission = $this->encrypt->decode($gadmin['limits']);
 			$this->permission = $permission = explode('|',$permission);
 		}

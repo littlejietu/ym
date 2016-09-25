@@ -101,9 +101,9 @@ function openItem(args){
   }else{
     //左侧菜单事件
     //location
-    $.cookie('now_location_nav',nav);
-    $.cookie('now_location_act',act);
-    $.cookie('now_location_op',op);
+    // $.cookie('now_location_nav',nav);
+    // $.cookie('now_location_act',act);
+    // $.cookie('now_location_op',op);
     $("a[name='item_"+op+act+"']").addClass('selected');
     //crumbs
     $('#crumbs').html('<span>'+$('#nav_'+nav+' > span').html()+'</span><span class="arrow">&nbsp;</span><span>'+$('#item_'+op+act).html()+'</span>');

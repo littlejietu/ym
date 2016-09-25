@@ -509,7 +509,7 @@ class BaseSellerController extends CI_Controller {
     function sellerLogin(){
         //取得cookie内容，解密，和系统匹配
         $user = unserialize($this->encrypt->decode($this->session->userdata('seller_key'),C('basic_info.MD5_KEY') ) );
-        if (!key_exists('role_id',(array)$user) || !isset($user['is_super']) || empty($user['admin_username']) || empty($user['admin_id']) || empty($user['site_ids']) ){
+        if (!key_exists('role_id',(array)$user) || !isset($user['is_super']) || empty($user['admin_username']) || empty($user['admin_id']) || empty($user['site_ids']) || empty($user['company_id']) ){
             @header('Location: '.SELLER_SITE_URL.'/login');exit;
         }else {
             //$this->session->set_userdata('seller_key',$this->encrypt->encode(serialize($user),C('basic_info.MD5_KEY')),36000);

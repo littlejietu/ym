@@ -14,7 +14,7 @@ class Login extends CI_Controller {
 
 	public function login() {
 
-		$this->load->model('oil/Oil_admin_model');
+		$this->load->model('oil/O_admin_model');
 
 		if($this->input->post()) {
 
@@ -57,7 +57,7 @@ class Login extends CI_Controller {
 			$arrRes = array('code'=>'SUCCESS','msg'=>'','jumpUrl'=>SELLER_SITE_URL.'/login');
 
 			//查询商家表信息
-			$adminInfo =	$this->Oil_admin_model->get_by_where("username='$user_name'");
+			$adminInfo =	$this->O_admin_model->get_by_where("username='$user_name'");
 
 			//判断用户名是否正确
 			if(empty($adminInfo)) {
@@ -74,12 +74,12 @@ class Login extends CI_Controller {
 			}
 
 			//会员登录次数+1
-			$this->Oil_admin_model->update_by_id($adminInfo['id'],array('login_num' => intval($adminInfo['login_num']+1),'login_time'=>time() ));
+			$this->O_admin_model->update_by_id($adminInfo['id'],array('login_num' => intval($adminInfo['login_num']+1),'login_time'=>time() ));
 
 			//$this->systemSetKey();
 			$this->load->library('encrypt');
 			$this->load->library('session');
-			$user = array('admin_username'=>$adminInfo['username'], 'admin_name'=>$adminInfo['name'], 'admin_id'=>$adminInfo['id'],'site_ids'=>$adminInfo['site_ids'], 'role_id'=>$adminInfo['role_id'],'is_super'=>$adminInfo['is_super']);
+			$user = array('admin_username'=>$adminInfo['username'], 'admin_name'=>$adminInfo['name'], 'admin_id'=>$adminInfo['id'],'company_id'=>$adminInfo['company_id'],'site_ids'=>$adminInfo['site_ids'], 'role_id'=>$adminInfo['role_id'],'is_super'=>$adminInfo['is_super']);
 			//$this->session('sys_key',$this->encrypt->encode(serialize($user),C('basic_info.MD5_KEY')),36000);
 			$this->session->set_userdata('seller_key',$this->encrypt->encode(serialize($user),C('basic_info.MD5_KEY')),36000);
 			// set_cookie('admin_id',$adminInfo['id'],3600);

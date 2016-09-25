@@ -5,7 +5,7 @@
 <title><?php echo $output['html_title'];?></title>
 
 <link href="<?php echo _get_cfg_path('seller').TPL_ADMIN_NAME;?>css/skin_0.css" type="text/css" rel="stylesheet" id="cssfile" />
-<?php echo _get_html_cssjs('seller_js','jquery.js,jquery.validation.min.js','js');?>
+<?php echo _get_html_cssjs('seller_js','jquery.js,jquery.validation.min.js,jquery.cookie.js','js');?>
 
 <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!--[if lt IE 9]>
