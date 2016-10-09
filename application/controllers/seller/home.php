@@ -268,6 +268,7 @@ class Home extends BaseSellerController {
 					'text' => lang('nc_operation'),
 					'list' => array(
 						array('args'=>',operation,operation',			    			'text'=>lang('nc_operation_set')),
+						array('args'=>',activity,operation',							'text'=>'满就送活动'),
 						//array('args'=>'groupbuy_template_list,groupbuy,operation',	'text'=>lang('nc_groupbuy_manage')),
 	                    //array('args'=>'index,vr_groupbuy,operation',               	'text'=>'虚拟抢购设置'),
 						//array('args'=>'xianshi_apply,promotion_xianshi,operation',	'text'=>lang('nc_promotion_xianshi')),
@@ -277,7 +278,6 @@ class Home extends BaseSellerController {
 						//array('args'=>'voucher_apply,voucher,operation',           	'text'=>lang('nc_voucher_price_manage')),
 						//array('args'=>'index,bill,operation',					    	'text'=>lang('nc_bill_manage')),
 						//array('args'=>'index,vr_bill,operation',						'text'=>'虚拟订单结算'),
-						array('args'=>',activity,operation',							'text'=>lang('nc_activity_manage')),
 						array('args'=>',coupon,operation',								'text'=>'优惠券管理'),
 						array('args'=>',integral_goods,operation',						'text'=>lang('nc_pointprod')),
 						array('args'=>',first,operation',								'text'=>'推首管理'),
