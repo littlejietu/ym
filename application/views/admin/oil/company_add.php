@@ -52,7 +52,7 @@
         </tr>
         <tr class="noborder">
           <td class="vatop rowform">
-          <select name="role_id">
+          <select name="product_id">
             <option value="0">请选择套餐</option>
           <?php foreach($product_list as $v){?>
             <option value="<?php echo $v['id'];?>"<?php if(!empty($info) && $info['product_id']==$v['id']) echo ' selected';?>><?php echo $v['name'];?></option>
@@ -79,14 +79,14 @@
           <td colspan="2" class="required"><label for="linkman">联系人:</label></td>
         </tr>
         <tr class="noborder">
-          <td class="vatop rowform"><input type="text" id="linkman" name="linkman" class="txt"></td>
+          <td class="vatop rowform"><input type="text" id="linkman" name="linkman" class="txt" value="<?php echo !empty($info)?$info['linkman']:'';?>"></td>
           <td class="vatop tips"></td>
         </tr>
         <tr>
           <td colspan="2" class="required"><label for="phone">电话:</label></td>
         </tr>
         <tr class="noborder">
-          <td class="vatop rowform"><input type="text" id="phone" name="phone" class="txt"></td>
+          <td class="vatop rowform"><input type="text" id="phone" name="phone" class="txt" value="<?php echo !empty($info)?$info['phone']:'';?>"></td>
           <td class="vatop tips"></td>
         </tr>
       </tbody>
@@ -96,7 +96,7 @@
         </tr>
         <tr class="noborder">
           <td class="vatop rowform">
-            <input type="radio" name="status"  id="status" value="1" <?php if (isset($info['status']) && $info['status'] == 1){?>checked="checked"<?php }?>>正常　
+            <input type="radio" name="status"  id="status" value="1" <?php if ( empty($info['status']) || (isset($info['status']) && $info['status'] == 1)){?>checked="checked"<?php }?>>正常　
             <input type="radio" name="status"  id="status" value="2" <?php if (isset($info['status']) && $info['status'] == 2){?>checked="checked"<?php }?>>禁用</td>
           <td class="vatop tips"></td>
         </tr>
@@ -128,7 +128,7 @@ $(document).ready(function(){
         rules : {
         	company : {
                 required : true,
-                minlength: 3,
+                
 				maxlength: 20,
                 remote   : {                
                 url :"/admin/admin/ajax_check_name",

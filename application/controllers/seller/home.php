@@ -185,6 +185,8 @@ class Home extends BaseSellerController {
 					'text' => '公司',
 					'list' => array(
 						array('args'=>',net,company',								'text'=>'网点管理'),
+						array('args'=>',site,company',								'text'=>'加油站管理'),
+						array('args'=>',price,company',								'text'=>'油站信息'),
 						array('args'=>',spec_name,company',								'text'=>'规格管理'),
 						array('args'=>',goods_tpl,company',								'text'=>'标准商品模板管理'),
 						array('args'=>',goods_audit,company',								'text'=>'商品价格审核管理'),

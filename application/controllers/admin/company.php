@@ -15,14 +15,48 @@ class Company extends MY_Admin_Controller {
         
         //$this->lang->load('admin_layout');
         //$this->lang->load('admin_admin');
+        $cFieldName = $this->input->post_get('search_field_name');
+        $cKey = $this->input->post_get('search_field_value');
+        $search_time = $this->input->post_get('search_time');
+        $time1 = $this->input->post_get('time1');
+        $time2 = $this->input->post_get('time2');
+        $product_id = $this->input->post_get('product_id');
+
+        if($cFieldName=='li_nkman')
+            $cFieldName = 'linkman';
+
         $this->load->model('sys/Product_model');
         $page     = _get_page();
         $pagesize = 5;
         $arrParam = array();
-        $arrWhere = array();
-        $arrWhere['status <>'] = -1;
+        $arrWhere = array('status<>'=>-1);
+
+        $arrFileld = array('company','linkman','phone');
+        if($cKey && in_array($cFieldName,$arrFileld))
+        {
+            $arrParam['search_field_name'] = $cFieldName;
+            $arrParam['search_field_value'] = $cKey;
+            $arrWhere[$cFieldName.' like '] = "'%$cKey%'";
+        }
+        $arrFileldTime = array('addtime','prd_start_time','prd_end_time');
+        if(!empty($time1) && in_array($search_time,$arrFileldTime))
+        {
+            $arrWhere[$search_time.' >= '] = strtotime($time1);
+            $arrParam['time1'] = $time1;
+        }
+        if(!empty($time2) && in_array($search_time, $arrFileldTime))
+        {
+            $arrWhere[$search_time.' <= '] = strtotime($time2.' 23:59:59');
+            $arrParam['time2'] = $time2;
+        }
+        if(!empty($product_id))
+        {
+            $arrWhere['product_id'] = $product_id;
+            $arrParam['product_id'] = $product_id;
+        }
+
         $list = $this->Company_model->fetch_page($page, $pagesize, $arrWhere,'*');
-        //print_r($list);die;
+        //echo $this->Company_model->db->last_query();
         foreach($list['rows'] as $k => $v){
 
            $aName = $this->Product_model->get_by_id($v['product_id'],'name');
@@ -42,6 +76,7 @@ class Company extends MY_Admin_Controller {
         
         $result = array(
             'list' =>$list,
+            'arrParam' => $arrParam,
         );
 
         $this->load->view('admin/oil/company',$result);
@@ -50,8 +85,8 @@ class Company extends MY_Admin_Controller {
     //新增
     public function add()
     {
-         $this->lang->load('admin_layout');
-         $this->lang->load('admin_admin');
+         //$this->lang->load('admin_layout');
+         //$this->lang->load('admin_admin');
 
         $id = $this->input->get('id');
 
@@ -108,8 +143,10 @@ class Company extends MY_Admin_Controller {
                     'status' => $this->input->post('status'),
                 );
 
-                if(empty($id))
+                if(empty($id)){
+                    $data['addtime'] = time();
                     $this->Company_model->insert($data);
+                }
                 else
                     $this->Company_model->update_by_id($id, $data);
                 
