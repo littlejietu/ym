@@ -12,8 +12,8 @@ class Buying_service
     public function __construct()
     {
         $this->ci = &get_instance();
-        $this->ci->load->model('discount_goods_model');
-        $this->ci->load->model('discount_activity_model');
+        //$this->ci->load->model('discount_goods_model');
+        //$this->ci->load->model('discount_activity_model');
     }
 
     function __set($name, $value)

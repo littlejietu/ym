@@ -126,4 +126,4 @@ $autoload['language'] = array('common');
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array('XT_Model');
+$autoload['model'] = array('sys/XT_Model');

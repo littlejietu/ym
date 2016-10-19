@@ -31,6 +31,7 @@ html{ -webkit-text-size-adjust: none;}
 .w72 { width: 72px; }
 .w84 { width: 84px; }
 .w96 { width: 96px; }
+.w100 { width: 100px; }
 .w108 { width: 108px; }
 .w120 { width: 120px; }
 .w132 { width: 132px; }
@@ -40,6 +41,8 @@ html{ -webkit-text-size-adjust: none;}
 .w200 { width: 200px !important;}
 .w270 { width: 270px;}
 .w300 { width: 300px;}
+.w500 { width: 500px;}
+.w600 { width: 600px;}
 .w830 { width: 830px;}
 
 .w15pre { width: 15%;}
@@ -221,7 +224,7 @@ h6 { font-size:12px;}
 .tb-type1 .txt-short { width:80px;}
 .tb-type1 .txt { width:140px;}
 .tb-type1 .txt2 { width:220px;}
-.tb-type1 .date , .tb-type1 .date:hover { background: url(../images/input_date.gif) no-repeat 0 0; padding-left: 25px; width:70px;}
+.tb-type1 .date , .tb-type1 .date:hover { background: url(../images/input_date.gif) no-repeat 0 0; padding-left: 25px; width:80px;}
 .tb-type1 .date { background-color: #FAFAFA; }
 .tb-type1 .date:hover { background-color: #FFF;}
 #gcategory select{ margin-right:3px;}
@@ -1655,6 +1658,14 @@ td.trigger i:hover { color: #27A9E3;}
 .page .thead th:nth-child(5){ text-indent:1.25em}
 
 #formSearch .order_seller{text-align:justify;text-justify:inter-ideograph;width:2.6rem;}
+
+.fn-mb15 {margin-bottom: 15px;}
+.fn-mt15 {margin-top: 15px;}
+.fn-hide {display: none;}
+.com-plane-select .item{background-color:#F0F0F0; padding: 5px}
+.com-plane-select .item-selected{background-color:red;}
+.fn-fl{float: left;}
+.fn-hide{display: none}
 
 
 

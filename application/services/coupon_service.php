@@ -8,8 +8,8 @@ class Coupon_service {
 	protected $couponModelArr = array();
 	public function __construct() {
 		$this->ci = &get_instance();
-		$this->ci->load->model('Coupon_model');
-		$this->ci->load->model('Coupon_User_model');
+		//$this->ci->load->model('Coupon_model');
+		//$this->ci->load->model('Coupon_User_model');
 	}
 
 	private function getCouponModel($id){

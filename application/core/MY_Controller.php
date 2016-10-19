@@ -430,7 +430,7 @@ class ApiController extends CI_Controller {
         $sign = md5(urlencode($str));
         if ($sign != $get_sign)
         {
-            output_error(-3,'签名出错-'.$sign);exit;
+            output_error('SignErr','签名出错-'.$sign);exit;
             echo json_encode($result);exit;
         }
      }
@@ -446,10 +446,10 @@ class TokenApiController extends ApiController{
         parent::__construct();
         
         //验证token信息是否正确
-        $this->load->model('User_token_model');
+        $this->load->model('user/User_token_model');
 
         $token  = $this->input->post('token');
-        $where['token'] = "'$token'";
+        $where = array('token'=>$token,'status'=>1);
         $this->loginUser = $this->User_token_model->get_by_where($where);
        
         if (empty($this->loginUser))

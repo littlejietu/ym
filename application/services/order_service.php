@@ -7,13 +7,38 @@ class Order_service
 	{
 		$this->ci = & get_instance();
 		// $this->ci->load->library('Trd_OrderVO');
-		$this->ci->load->model('Goods_model');
-		$this->ci->load->model('Order_model');
-		$this->ci->load->model('User_model');
-		$this->ci->load->model('Order_goods_model');
+		//$this->ci->load->model('Goods_model');
+		$this->ci->load->model('oil/Price_model');
+		$this->ci->load->model('trd/Order_model');
+		$this->ci->load->model('user/User_model');
+		//$this->ci->load->model('Order_goods_model');
 		$this->ci->load->service('fundOrder_service');
 		$this->ci->load->service('buying_service');
 
+	}
+
+	/*
+	 * 初始化加油数据
+	 * @param oil:gun_no,oil_no,oil_num,oil_amt
+	 */
+	private function initOilData($oil){
+		$arrOil = array();
+		$arrOilTmp = explode(',', $oil);
+
+		if(count($arrOilTmp)>=3){
+			list($gun_no , $oil_no , $oil_num, $oil_amt) = explode(',', $oil);
+
+			$aOil = $this->ci->Price_model->get_info_by_id($gun_no);
+
+
+
+
+			if($oil_num==0)
+				$oil_num = $oil_amt/
+			$arrOil = array('gun_no'=>$gun_no,'oil_no'=>$oil_no,'oil_num'=>$oil_num,'oil_amt'=>$oil_amt);
+		}
+
+		return $arrOil;
 	}
 
 	/**
@@ -80,17 +105,19 @@ class Order_service
     			}
     		}
     	}
-    	if(!empty($arrTmp)){
-	    	$arrGoods['goods'] = $arrTmp;
 
-	    	$arrGoods['goods_amt'] = $goods_amt;
+    	//只买了油，没有购买商品
+    	//if(!empty($arrTmp)){
+    	$arrGoods['goods'] = $arrTmp;
 
-	    	//discount_amt:通过商品activity_id得出discount_amt
-			$arrGoods['discount_amt'] = 0;
+    	$arrGoods['goods_amt'] = $goods_amt;
 
-			//分润金额
-			$arrGoods['comm_amt'] = $comm_amt;
-		}
+    	//discount_amt:通过商品activity_id得出discount_amt
+		$arrGoods['discount_amt'] = 0;
+
+		//分润金额
+		$arrGoods['comm_amt'] = $comm_amt;
+		//}
 
     	return $arrGoods;
 	}
@@ -106,26 +133,29 @@ class Order_service
 	 * @param coupon
 	 * @return $arrReturn 订单id
 	 */
-	public function createOrderList($arrCart, $arrBuy, $addressId, $invoiceId=0, $ifcart=0){
-		$this->ci->load->model('Shop_model');
+	public function createOrderList($arrCart, $arrBuy, $addressId=0, $invoiceId=0, $ifcart=0){
+		$this->ci->load->model('oil/Site_model');
 		$this->ci->load->service('buying_service');
 
 		$arrReturn = array();
 
-		foreach ($arrCart as $shop_id => $aItem) {
+		foreach ($arrCart as $site_id => $aItem) {
 			//店铺信息
-			$aShop = $this->ci->Shop_model->get_by_id($shop_id);
-			if(empty($aShop)){
+			$aSite = $this->ci->Site_model->get_by_id($site_id);
+			if(empty($aSite)){
 				continue;
 			}
 
+
 			$arrTrdOrder['title'] = C('OrderTypeName.1');
+			$arrOil = $this->initOilData($aItem['oil']);
 			$arrGoods = $this->initGoodsData($aItem['goods']);
-			if(empty($arrGoods))
+			if(empty($arrOil) && empty($arrGoods))
 				continue;
 			$coupon_id = !empty($aItem['coupon'])?$aItem['coupon']:0;
-			//$activity_id = !empty($aItem['activity'])?$aItem['activity']:0;
+			$activity_id = !empty($aItem['activity'])?$aItem['activity']:0;
 
+			$arrTrdOrder['oil'] = $arrOil;
 			$arrTrdOrder['goods'] = $arrGoods;
 			
 			$arrTrdOrder['addressId'] = $addressId;
@@ -134,7 +164,7 @@ class Order_service
 
 			//coupon_amt:通过coupon_id得出优惠券金额
 			$arrTrdOrder['coupon_amt'] = 0;
-			$coupon_amt = $this->ci->buying_service->get_coupon_price($arrBuy['buyer_userid'],$coupon_id,$shop_id,$arrGoods['goods_amt']);
+			$coupon_amt = $this->ci->buying_service->get_coupon_price($arrBuy['buyer_userid'],$coupon_id,$site_id,$arrGoods['goods_amt']);
 			if($coupon_amt>0){
 				$bUseIt = $this->ci->buying_service->use_coupon($coupon_id);
 				if($bUseIt){
@@ -145,9 +175,12 @@ class Order_service
 
 			//fare_amt:在一个商店计算运费
 			$arrTrdOrder['fare_amt'] = 0;
-			$aAddress = $this->ci->Address_model->get_by_id($addressId);
-			if(!empty($aAddress))
-				$arrTrdOrder['fare_amt'] = $this->ci->buying_service->getFare($arrGoods['goods'], $aAddress['city_id']);
+			/*
+			if(!empty($addressId)){
+				$aAddress = $this->ci->Address_model->get_by_id($addressId);
+				if(!empty($aAddress))
+					$arrTrdOrder['fare_amt'] = $this->ci->buying_service->getFare($arrGoods['goods'], $aAddress['city_id']);
+			}*/
 
 			//todo:
 			//$discount_amt:组活动
@@ -224,7 +257,7 @@ class Order_service
 			// 初始化订单
 			$this->ci->load->model('Shot_goods_model');
 			$this->ci->load->model('Goods_sku_model');
-			$this->ci->load->model('Address_model');
+			//$this->ci->load->model('Address_model');
 			$this->ci->load->model('Order_detail_model');
 			$this->ci->load->service('package_service');
 			$this->ci->load->service('goodsnum_service');
@@ -266,6 +299,7 @@ class Order_service
 				}
 
 				//2.2地址快照$addressId
+				/*
 				$aAddress = $this->ci->Address_model->get_by_id($addressId);
 				if(!empty($aAddress)){
 					$aShotAddress = array('order_id'=>$order_id,'delivery_way'=>$delivery_way, 'buyer_userid'=>$arrTrdOrder['buyer_userid'],'real_name'=>$aAddress['real_name'],
@@ -274,6 +308,7 @@ class Order_service
 						);
 					$this->ci->Order_detail_model->insert($aShotAddress);
 				}
+				*/
 				//2.3发票快照$invoiceId
 				//-2.保存快照信息
 

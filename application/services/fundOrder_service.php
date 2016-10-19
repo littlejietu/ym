@@ -7,11 +7,10 @@ class fundOrder_service
 	public function __construct()
 	{
 		$this->ci = & get_instance();
-		// $this->ci->load->library('Trd_OrderVO');
-		$this->ci->load->model('Fundorder_model');
-		$this->ci->load->model('User_model');
-		$this->ci->load->model('order_goods_model');
-		$this->ci->load->model('Account_model');
+		$this->ci->load->model('trd/Fundorder_model');
+		$this->ci->load->model('user/User_model');
+		//$this->ci->load->model('order_goods_model');
+		$this->ci->load->model('acct/Account_model');
 	}
 
 	//返回对象

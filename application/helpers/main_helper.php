@@ -48,24 +48,28 @@ function _sendSms($mobile, $message, $sendTime, $smsUrl)
 	return true;
 }
 
+function zerofill($num){
+    return $num<10? '0'.$num : $num.'';
+}
+
 /**
  * 验证是否为平台店铺
  *
  * @return boolean
  */
-function checkPlatformShop(){
-    return $_SESSION['is_own_shop'];
-}
+// function checkPlatformShop(){
+//     return $_SESSION['is_own_shop'];
+// }
 
 /**
  * 验证是否为平台店铺 并且绑定了全部商品类目
  *
  * @return boolean
  */
-function checkPlatformShopBindingAllCategory()
-{
-	return checkPlatformShop() && $_SESSION['bind_all_gc'];
-}
+// function checkPlatformShopBindingAllCategory()
+// {
+// 	return checkPlatformShop() && $_SESSION['bind_all_gc'];
+// }
 
 
 
@@ -124,8 +128,8 @@ function get_api_action(){
  */
 function output_data($datas=null) {
     $data = array();
-    $data['code'] = 1;
-    $data['msg'] = 'SUCCESS';
+    $data['code'] = 'SUCCESS';
+    $data['msg'] = '操作成功';
     $data['action'] = get_api_action();
     if(empty($datas)){
        $data['data'] = new stdClass();
@@ -147,7 +151,7 @@ function output_data($datas=null) {
  * @return string
  */
 function output_error($errCode,$message) {
-    $data['code'] = $errCode;
+    $data['code'] = $errCode==1?'SUCCESS':$errCode;
     $data['msg'] = $message;
     $data['action'] = get_api_action();
     $data['data'] = new stdClass();

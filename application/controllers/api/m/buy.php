@@ -9,9 +9,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Buy extends TokenApiController {
 	public function __construct() {
 		parent::__construct();
-		$this->load->service('address_service');
-		$this->load->service('cart_service');
-		$this->load->service('buy_service');
+		//$this->load->service('address_service');
+		//$this->load->service('cart_service');
+		//$this->load->service('buy_service');
 		$this->load->service('order_service');
 		$this->load->service('coupon_service');
 		
@@ -122,10 +122,6 @@ class Buy extends TokenApiController {
 	
 	/**
 	* 创建订单
-	* @date: 2016年3月22日 下午3:28:34
-	* @author: hbb
-	* @param: variable
-	* @return:
 	*/
 	public function create() {
 	    $cart = $this->input->post('cart');
@@ -148,10 +144,6 @@ class Buy extends TokenApiController {
 	
 	/**
 	* 付款界面 收银台
-	* @date: 2016年3月22日 下午5:03:23
-	* @author: hbb
-	* @param: variable
-	* @return:
 	*/
 	public function cashier(){
 	    $order_id = $this->input->post('order_id');
