@@ -13,8 +13,8 @@ class Site extends BaseSellerController {
     
     public function index() {
         
-        //$this->lang->load('admin_layout');
-        //$this->lang->load('admin_admin');
+        $sellerInfo = $this->seller_info;
+
         $cFieldName = $this->input->post_get('search_field_name');
         $cKey = $this->input->post_get('search_field_value');
         $search_time = $this->input->post_get('search_time');
@@ -23,8 +23,8 @@ class Site extends BaseSellerController {
         $company_id = $this->input->post_get('company_id');
 
 
-        $this->load->model('sys/Product_model');
-        $this->load->model('oil/Company_model');
+        // $this->load->model('sys/Product_model');
+        // $this->load->model('oil/Company_model');
 
         if($cFieldName=='li_nkman')
             $cFieldName = 'linkman';
@@ -32,7 +32,7 @@ class Site extends BaseSellerController {
         $page     = _get_page();
         $pagesize = 5;
         $arrParam = array();
-        $arrWhere = array('status<>'=>-1);
+        $arrWhere = array('status<>'=>-1, 'company_id'=>$sellerInfo['company_id']);
 
         $company_name = '';
         if(!empty($company_id)){
@@ -65,6 +65,7 @@ class Site extends BaseSellerController {
         }
 
         $list = $this->Site_model->fetch_page($page, $pagesize, $arrWhere,'*');
+        //echo $this->Site_model->db->last_query();
         //print_r($list);die;
         // foreach($list['rows'] as $k => $v){
 
@@ -75,7 +76,7 @@ class Site extends BaseSellerController {
 
         //分页
         $pagecfg = array();
-        $pagecfg['base_url']     = _create_url(ADMIN_SITE_URL.'/site', $arrParam);
+        $pagecfg['base_url']     = _create_url(SELLER_SITE_URL.'/site', $arrParam);
         $pagecfg['total_rows']   = $list['count'];
         $pagecfg['cur_page'] = $page;
         $pagecfg['per_page'] = $pagesize;
@@ -95,8 +96,7 @@ class Site extends BaseSellerController {
     //新增
     public function add()
     {
-         //$this->lang->load('admin_layout');
-         //$this->lang->load('admin_admin');
+
         $this->load->model('oil/Company_model');
 
         $id = $this->input->get('id');
@@ -114,25 +114,26 @@ class Site extends BaseSellerController {
 
 
         
-        $this->load->model('sys/Product_model');
-        $this->load->model('oil/Company_model');
-        $product_list = $this->Product_model->get_list();
-        $company_list = $this->Company_model->get_list(array('status'=>1));
+        // $this->load->model('sys/Product_model');
+        // $this->load->model('oil/Company_model');
+        // $product_list = $this->Product_model->get_list();
+        // $company_list = $this->Company_model->get_list(array('status'=>1));
 
         //print_r($product_list);die;
         $result = array(
-            'product_list' => $product_list,
-            'company_list' => $company_list,
+            // 'product_list' => $product_list,
+            // 'company_list' => $company_list,
             'info' => $info,
             'company_id' => $company_id,
             'company_name' => $company_name,
         );
         
-        $this->load->view('site/oil/site_add',$result);
+        $this->load->view('seller/oil/site_add',$result);
     }
     
     public function save()
     {
+        $sellerInfo = $this->seller_info;
         if ($this->input->is_post())
         {
             $config = array(
@@ -152,7 +153,7 @@ class Site extends BaseSellerController {
             if ($this->form_validation->run() === TRUE)
             {
                 $id = $this->input->post('id');
-                $company_id = $this->input->post('company_id');
+                $company_id = $sellerInfo['company_id'];
                 $prd_start_time = $this->input->post('prd_start_time');
                 $prd_start_time = !empty($prd_start_time)?strtotime($prd_start_time):0;
                 $prd_end_time = $this->input->post('prd_end_time');
@@ -198,7 +199,7 @@ class Site extends BaseSellerController {
                 }else
                     $this->Site_model->update_by_id($id, $data);
                 
-                redirect(ADMIN_SITE_URL.'/site?company_id='.$company_id);
+                redirect(SELLER_SITE_URL.'/site');
             }
         }
     }
@@ -220,7 +221,7 @@ class Site extends BaseSellerController {
         $data['status'] = -1;
         $where['id'] = $id;
         $this->Site_model->delete_by_id($id);
-        redirect( ADMIN_SITE_URL.'/site' );
+        redirect( SELLER_SITE_URL.'/site' );
     }
     
    

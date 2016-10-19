@@ -13,8 +13,7 @@ class Site extends MY_Admin_Controller {
     
     public function index() {
         
-        //$this->lang->load('admin_layout');
-        //$this->lang->load('admin_admin');
+
         $cFieldName = $this->input->post_get('search_field_name');
         $cKey = $this->input->post_get('search_field_value');
         $search_time = $this->input->post_get('search_time');
@@ -95,8 +94,7 @@ class Site extends MY_Admin_Controller {
     //新增
     public function add()
     {
-         //$this->lang->load('admin_layout');
-         //$this->lang->load('admin_admin');
+
         $this->load->model('oil/Company_model');
 
         $id = $this->input->get('id');

@@ -103,8 +103,8 @@
               echo '禁用';?>
            </td>
           <td class="w150 align-center">
-            <a href="javascript:void(0)" onclick="if(confirm('您确定要删除吗?')){location.href='<?php echo ADMIN_SITE_URL.'/company/del?id='.$v['id']; ?>'}">删除</a> | 
             <a href="<?php echo ADMIN_SITE_URL.'/company/add?id='.$v['id']; ?>">编辑</a> | 
+            <a href="javascript:void(0)" onclick="if(confirm('您确定要删除吗?')){location.href='<?php echo ADMIN_SITE_URL.'/company/del?id='.$v['id']; ?>'}">删除</a> | 
             <a href="<?php echo ADMIN_SITE_URL.'/site?company_id='.$v['id']; ?>">加油站管理</a>
           </td>
         </tr>

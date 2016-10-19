@@ -4,16 +4,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>big city</title>
-<?php echo _get_html_cssjs('admin_js','jquery.js,jquery.validation.min.js,admincp.js,jquery.cookie.js,common.js','js');?>
-<link href="<?php echo _get_cfg_path('admin').TPL_ADMIN_NAME;?>css/skin_0.css" type="text/css" rel="stylesheet" id="cssfile" />
-<?php echo _get_html_cssjs('admin_css','perfect-scrollbar.min.css','css');?>
+<?php echo _get_html_cssjs('seller_js','jquery.js,jquery.validation.min.js,admincp.js,jquery.cookie.js,common.js','js');?>
+<link href="<?php echo _get_cfg_path('seller').TPL_ADMIN_NAME;?>css/skin_0.css" type="text/css" rel="stylesheet" id="cssfile" />
+<?php echo _get_html_cssjs('seller_css','perfect-scrollbar.min.css','css');?>
 
-<?php echo _get_html_cssjs('admin',TPL_ADMIN_NAME.'css/font-awesome.min.css','css');?>
+<?php echo _get_html_cssjs('seller',TPL_ADMIN_NAME.'css/font-awesome.min.css','css');?>
 
 <!--[if IE 7]>
-  <?php echo _get_html_cssjs('admin',TPL_ADMIN_NAME.'css/font-awesome-ie7.min.css','css');?>
+  <?php echo _get_html_cssjs('seller',TPL_ADMIN_NAME.'css/font-awesome-ie7.min.css','css');?>
 <![endif]-->
-<?php echo _get_html_cssjs('admin_js','perfect-scrollbar.min.js','js');?>
+<?php echo _get_html_cssjs('seller_js','perfect-scrollbar.min.js','js');?>
 
 </head>
 <body>
@@ -24,7 +24,7 @@
       <h3>加油站管理</h3>
       <ul class="tab-base">
       <li><a href="JavaScript:void(0);" class="current"><span>加油站列表</span></a></li>
-      <li><a href="<?php echo ADMIN_SITE_URL.'/site/add?company_id='.(!empty($arrParam['company_id'])?$arrParam['company_id']:0);?>"><span>添加加油站</span></a></li>
+      <li><a href="<?php echo SELLER_SITE_URL.'/site/add';?>"><span>添加加油站</span></a></li>
       </ul>
     </div>
   </div>
@@ -54,7 +54,7 @@
       </tbody>
     </table>
     </form>
-  <form method="post" id='form_admin' action="<?php echo ADMIN_SITE_URL.'/site/del'?>">
+  <form method="post" id='form_admin' action="<?php echo SELLER_SITE_URL.'/site/del'?>">
     <table class="table tb-type2">
       <thead>
         <tr class="space">
@@ -67,7 +67,7 @@
           <th class="align-center">电话</th>
           <th class="align-center">QQ</th>
           <th class="align-center">状态</th>
-          <th class="align-center">操作</th>
+          <th class="w200 align-center">操作</th>
         </tr>
       </thead>
       <tbody>
@@ -87,10 +87,11 @@
             else
               echo '禁用';?>
            </td>
-          <td class="w150 align-center">
+          <td class="align-center">
+            <a href="<?php echo SELLER_SITE_URL.'/site/add?id='.$v['id']; ?>">编辑</a> | 
             <a href="javascript:void(0)" onclick="if(confirm('您确定要删除吗?')){location.href='<?php echo ADMIN_SITE_URL.'/site/del?id='.$v['id']; ?>'}">删除</a> | 
-            <a href="<?php echo ADMIN_SITE_URL.'/site/add?id='.$v['id']; ?>">编辑</a>|
-            <a href="<?php echo ADMIN_SITE_URL.'/price/add?id='.$v['id']; ?>">查看</a>
+            <a href="<?php echo SELLER_SITE_URL.'/price?site_id='.$v['id']; ?>">油品管理</a> | 
+            <a href="<?php echo SELLER_SITE_URL.'/gun?site_id='.$v['id']; ?>">油枪管理</a>
           </td>
         </tr>
         <?php endforeach; ?>
