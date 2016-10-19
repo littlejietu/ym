@@ -10,13 +10,53 @@ class Activity extends BaseSellerController {
 	}
 
     public function index() {
-        $this->load->model('oil/Site_model'); 
+        $sellerInfo = $this->seller_info;
+        $company_id = $sellerInfo['company_id'];
+        $act_name = $this->input->post_get('act_name');
+        $search_time = $this->input->post_get('search_time');
+        $time1 = $this->input->post_get('time1');
+        $time2 = $this->input->post_get('time2');
+        $site_id = $this->input->post_get('site_id');
+        $type = $this->input->post_get('type');
+
+        $this->load->model('oil/Site_model');
+
+        $site_list = $this->Site_model->get_list(array('company_id'=>$sellerInfo['company_id'],'status'=>1),'id,site_name');
 
         $page     = _get_page();
         $pagesize = 5;
         $arrParam = array();
-        $arrWhere = array('status<>'=>-1);
-        $list = $this->Activity_model->fetch_page($page, $pagesize, $arrWhere,'*');
+        $arrWhere = array('status<>'=>-1, 'company_id'=>$company_id);
+
+        if(!empty($act_name)){
+            $arrWhere['title like '] = "'%$act_name%'";
+            $arrParam['act_name'] = $act_name;
+        }
+
+        if(!empty($type)){
+            $arrWhere['type'] = $type;
+            $arrParam['type'] = $type;
+        }
+
+        if(!empty($site_id)){
+            $arrWhere['(site_ids="" or concat(",",site_ids,",") like'] = "'%,$site_id,%')";
+            $arrParam['site_id'] = $site_id;
+        }
+
+        $arrFileldTime = array('start_time','end_time');
+        if(!empty($time1) && in_array($search_time,$arrFileldTime)){
+            $arrWhere[$search_time.' >= '] = strtotime($time1);
+            $arrParam['time1'] = $time1;
+            $arrParam['search_time'] = $search_time;
+        }
+        if(!empty($time2) && in_array($search_time, $arrFileldTime)){
+            $arrWhere[$search_time.' <= '] = strtotime($time2.' 23:59:59');
+            $arrParam['time2'] = $time2;
+            $arrParam['search_time'] = $search_time;
+        }
+        $dbprefix = $this->Activity_model->prefix();
+        $tb = $dbprefix.'pmt_activity a left join '.$dbprefix.'pmt_activity_type b on(a.type=b.id)';
+        $list = $this->Activity_model->fetch_page($page, $pagesize, $arrWhere,'a.id,title,type,start_time,end_time,is_period,weekdays,time1,time2,site_ids,user_level_id,status,b.name as activity_name', 'a.status,a.type,start_time desc',$tb);
         foreach ($list['rows'] as $k => $v) {
             $v['user_level_name'] = '所有会员';
             $v['period_time'] = '任意时段';
@@ -38,8 +78,14 @@ class Activity extends BaseSellerController {
                 $v['period_time'] = $strWeek.' '.$strTime;
             }
             $v['site_names'] = '所有加油站';
-            if(!empty($v['site_ids']))
-                $v['site_names'] = $this->Site_model->get_by_where('id in('.$v['site_ids'].')');
+            if(!empty($v['site_ids'])){
+                $tmp_stie_names = '';
+                $tmp_site_list = $this->Site_model->get_list('id in('.$v['site_ids'].')','site_name');
+                foreach ($tmp_site_list as $s_k => $s_v) {
+                    $tmp_stie_names .= $s_v['site_name'].',';
+                }
+                $v['site_names'] = trim($tmp_stie_names, ',');
+            }
             $list['rows'][$k] = $v;
         }
 
@@ -55,6 +101,8 @@ class Activity extends BaseSellerController {
         
         $result = array(
             'list' =>$list,
+            'site_list' => $site_list,
+            'arrParam' => $arrParam,
         );
 
         $this->load->view('seller/pmt/activity',$result);
@@ -64,18 +112,28 @@ class Activity extends BaseSellerController {
     public function add()
     {
         $id = $this->input->get('id');
+        $sellerInfo = $this->seller_info;
 
+        $this->load->model('oil/Site_model');
         $this->load->model('pmt/Discount_step_model');
+        $this->load->model('pmt/Discount_oil_model');
+
         $info = array();
         $discount_list = array();
         if(!empty($id)){
             $info = $this->Activity_model->get_by_id($id);
-            if(!empty($info))
-                $discount_list = $this->Discount_step_model->get_list(array('act_id'=>$id,'discount_type'=>$info['type'],'status'=>1));
+            if(!empty($info)){
+                if($info['type']==1 || $info['type']==2)
+                    $discount_list = $this->Discount_step_model->get_list(array('act_id'=>$id,'discount_type'=>$info['type'],'status'=>1),'*', 'order_amount');
+                elseif($info['type']==3)
+                    $discount_list = $this->Discount_oil_model->get_list(array('act_id'=>$id,'discount_type'=>$info['type'],'status'=>1),'*', 'oil_no');
+            }
         }
+        $site_list = $this->Site_model->get_list(array('company_id'=>$sellerInfo['company_id'],'status'=>1));
 
         $result = array(
             'discount_list' => $discount_list,
+            'site_list' => $site_list,
             'info' => $info,
         );
         
@@ -85,7 +143,8 @@ class Activity extends BaseSellerController {
     public function save()
     {
 
-        $this->load->model('pmt/Discount_step_model'); 
+        $this->load->model('pmt/Discount_step_model');
+        $this->load->model('pmt/Discount_oil_model');
 
         if ($this->input->is_post())
         {
@@ -129,7 +188,7 @@ class Activity extends BaseSellerController {
                     'intro' => $this->input->post('intro'),
                     'is_limit_site' => $this->input->post('is_limit_site'),
                     'site_ids' => $this->input->post('site_ids'),
-                    'user_level' => $this->input->post('user_level'),
+                    'user_level_id' => $this->input->post('user_level'),
                     'is_limit_total_num' => $this->input->post('is_limit_total_num'),
                     'limit_total_num' => $this->input->post('limit_total_num'),
                     'is_limit_per_total_num' => $this->input->post('is_limit_per_total_num'),
@@ -148,21 +207,38 @@ class Activity extends BaseSellerController {
 
                 foreach ($step as $k_id => $v) {
                     if($v['type']==$discount_type){
-                        $data_step = array('act_id' => $id, 
-                            'order_amount' => $v['order_amount'],
-                            'discount_type' => $discount_type,
-                            'status' => 1,
-                        );
+                        
+                        //1:满立减 2:满立折 3:限时折扣
+                        if($discount_type==1 || $discount_type==2){
+                            $data_step = array('act_id' => $id, 
+                                'order_amount' => $v['order_amount'],
+                                'discount_type' => $discount_type,
+                                'status' => 1,
+                            );
 
-                        if($discount_type == 1)
-                            $data_step['discount_amount'] = $v['discount_amount'];
-                        else
-                            $data_step['discount_percent'] = $v['discount_percent']/100;
+                            if($discount_type == 1)
+                                $data_step['discount_amount'] = $v['discount_amount'];
+                            elseif($discount_type == 2)
+                                $data_step['discount_percent'] = $v['discount_percent']/100;
 
-                        if($k_id<0)
-                            $this->Discount_step_model->insert($data_step);
-                        else
-                            $this->Discount_step_model->update_by_id($k_id, $data_step);
+
+                            if($k_id<0)
+                                $this->Discount_step_model->insert($data_step);
+                            else
+                                $this->Discount_step_model->update_by_id($k_id, $data_step);
+                        }elseif($discount_type==3){
+                            $data_oil = array('act_id' => $id,
+                                'oil_no' => $v['oil_no'],
+                                'price' => $v['price'],
+                                'discount_type' => $discount_type,
+                                'status' => 1,
+                            );
+
+                            if($k_id<0)
+                                $this->Discount_oil_model->insert($data_oil);
+                            else
+                                $this->Discount_oil_model->update_by_id($k_id, $data_oil);
+                        }
 
                     }
                 }
@@ -194,11 +270,21 @@ class Activity extends BaseSellerController {
     public function ajax_step_del(){
         $step_id = $this->input->post('step_id');
         $act_id = $this->input->post('act_id');
+        $type = $this->input->post('type');
 
         $this->load->model('pmt/Discount_step_model');
-        $where = array('id'=>$step_id, 'act_id'=>$act_id);
-        $data = array('status'=>-1);
-        $this->Discount_step_model->update_by_where($where, $data);
+        $this->load->model('pmt/Discount_oil_model');
+        if($type==1 || $type==2){
+            $where = array('id'=>$step_id, 'act_id'=>$act_id);
+            $data = array('status'=>-1);
+            $this->Discount_step_model->update_by_where($where, $data);
+        }elseif($type==3){
+            $where = array('id'=>$step_id, 'act_id'=>$act_id);
+            $data = array('status'=>-1);
+            $this->Discount_oil_model->update_by_where($where, $data);
+        }
+
         echo 'true';exit;
     }
+    
 }

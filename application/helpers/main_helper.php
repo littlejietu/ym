@@ -128,8 +128,8 @@ function get_api_action(){
  */
 function output_data($datas=null) {
     $data = array();
-    $data['code'] = 1;
-    $data['msg'] = 'SUCCESS';
+    $data['code'] = 'SUCCESS';
+    $data['msg'] = '操作成功';
     $data['action'] = get_api_action();
     if(empty($datas)){
        $data['data'] = new stdClass();
@@ -151,7 +151,7 @@ function output_data($datas=null) {
  * @return string
  */
 function output_error($errCode,$message) {
-    $data['code'] = $errCode;
+    $data['code'] = $errCode==1?'SUCCESS':$errCode;
     $data['msg'] = $message;
     $data['action'] = get_api_action();
     $data['data'] = new stdClass();

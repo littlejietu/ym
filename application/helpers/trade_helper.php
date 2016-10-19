@@ -5,13 +5,28 @@ function getMillisecond() {
 	return (float) sprintf('%.0f', (floatval($t1) + floatval($t2)) * 1000);
 }
 
-function getOrderSn() {
-	$now = date("ymdHis") . getMillisecond();
-	$rnd = rand(100, 999);
+/**
+ * 生成支付单编号(两位随机 + y[2位年份]+时间戳微秒+会员ID%1000)，该值会传给第三方支付接口
+ * 长度 =2位 + 10位 + 3位 + 3位  = 18位
+ * 1000个会员同一微秒提订单，重复机率为1/100
+ * @return string
+ */
+function getOrderSn($seller_id=0) {
+	$rnd = mt_rand(10, 99);
+	$now = date("y") . getMillisecond();
+	$uid = sprintf('%03d', (int) $seller_id % 1000);
 
-	$id = $now . $rnd;
+	$id =  $rnd . $now . $uid;
+	return $id;
+
+	/*
+	$id = mt_rand(10,99)
+    . sprintf('%010d',time() - 946656000)
+    . sprintf('%03d', (float) microtime() * 1000)
+    . sprintf('%03d', (int) $seller_id % 1000);
 
 	return $id;
+	*/
 
 }
 
