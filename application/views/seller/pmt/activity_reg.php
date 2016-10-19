@@ -21,13 +21,10 @@
 <div class="page">
   <div class="fixed-bar">
     <div class="item-title">
-      <h3>活动管理</h3>
+      <h3>注册送礼</h3>
       <ul class="tab-base">
-        <li><a href="<?php echo SELLER_SITE_URL.'/activity';?>" class="<?php echo empty($arrParam['type'])?'current':'';?>"><span>活动列表</span></a></li>
-        <li><a href="<?php echo SELLER_SITE_URL.'/activity?type=1';?>" class="<?php if(!empty($arrParam['type']) && $arrParam['type']==1 ) echo 'current';?>"><span>满立减</span></a></li>
-        <li><a href="<?php echo SELLER_SITE_URL.'/activity?type=2';?>" class="<?php if(!empty($arrParam['type']) && $arrParam['type']==2 ) echo 'current';?>"><span>满立折</span></a></li>
-        <li><a href="<?php echo SELLER_SITE_URL.'/activity?type=3';?>" class="<?php if(!empty($arrParam['type']) && $arrParam['type']==3 ) echo 'current';?>"><span>限时折扣</span></a></li>
-        <li><a href="<?php echo SELLER_SITE_URL.'/activity/add';?>"><span>添加活动</span></a></li>
+        <li><a href="<?php echo SELLER_SITE_URL.'/activity_reg';?>" class="current"><span>活动列表</span></a></li>
+        <li><a href="<?php echo SELLER_SITE_URL.'/activity_reg/add';?>"><span>添加活动</span></a></li>
       </ul>
     </div>
   </div>
@@ -37,24 +34,11 @@
       <tbody>
       <tr>
         <td><label>活动名称</label><input class="txt" type="text" name="act_name" value="<?php if (isset($arrParam['act_name'])){echo $arrParam['act_name'];}?>" >&nbsp;&nbsp;
-        活动类型
-            <select name="type">
-              <option value="">全部</option>
-              <option value="1"<?php if (isset($arrParam['type']) && $arrParam['type']==1){echo " selected";}?>>满立减</option>
-              <option value="2"<?php if (isset($arrParam['type']) && $arrParam['type']==2){echo " selected";}?>>满立折</option>
-              <option value="3"<?php if (isset($arrParam['type']) && $arrParam['type']==3){echo " selected";}?>>限时折扣</option>
-            </select>
         参与站点<select name="site_id">
                 <option value="">请选择</option>
                 <?php foreach($site_list as $v):?>
                 <option <?php echo (isset($arrParam['site_id']) && $arrParam['site_id']==$v['id'])?'selected':''?>  value="<?php echo $v['id']?>"><?php echo $v['site_name']?></option>
                 <?php endforeach;?>
-            </select>
-        参与对象 <select name="paymethod" class="w100">
-            <option value="">请选择</option>
-            <option value="1" <?php if (isset($arrParam['paymethod']) && $arrParam['paymethod']==1){echo " selected";}?>>余额支付</option>
-            <option value="11" <?php if (isset($arrParam['paymethod']) && $arrParam['paymethod']==11){echo " selected";}?>>微信APP支付</option>
-            <option value="12" <?php if (isset($arrParam['paymethod']) && $arrParam['paymethod']==12){echo " selected";}?>>微信Wap支付</option>
             </select>
 
             <select name="search_time" >
@@ -78,12 +62,10 @@
         <tr class="thead">
           <th></th>
           <th>活动</th>
-          <th class="align-center">类型</th>
           <th class="align-center">参与站点</th>
-          <th class="align-center">参与对象</th>
+          <th class="align-center">送礼</th>
           <th class="align-center">开始时间</th>
           <th class="align-center">结束时间</th>
-          <th class="align-center">活动时段</th>
           <th class="align-center">状态</th>
           <th class="align-center">操作</th>
         </tr>
@@ -96,12 +78,13 @@
             <input type="checkbox" name="del_id[]" value="<?php echo $v['id']; ?>" class="checkitem" onclick="javascript:chkRow(this);">
           </td>
           <td><?php echo $v['title'];?></td>
-          <td class="align-center"><?php echo $v['activity_name'];?></td>
           <td class="align-center"><?php echo $v['site_names'];?></td>
-          <td class="align-center"><?php echo $v['user_level_name'];?></td>
+          <td class="align-center"><?php echo $v['is_gift_integral']?$v['gift_integral'].'分':'';?> 
+            <?php if($v['is_gift']):?>
+              <a href="<?php echo SELLER_SITE_URL.'/gift/add?id='.$v['gift_id'];?>"><?php echo $v['gift_name'];?></a>
+            <?php endif;?></td>
           <td class="align-center"><?php echo $v['start_time'] ? date('Y-m-d H:i',$v['start_time']) : ''; ?></td>
           <td class="align-center"><?php echo $v['end_time'] ? date('Y-m-d H:i',$v['end_time']) : ''; ?></td>
-          <td class="align-center"><?php echo $v['period_time']?></td>
           <td class="align-center"><?php 
             if($v['status'] == 1)
               echo '正常';
@@ -109,8 +92,8 @@
               echo '禁用';?>
            </td>
           <td class="w150 align-center">
-            <a href="<?php echo SELLER_SITE_URL.'/activity/add?id='.$v['id']; ?>">编辑</a> | 
-            <a href="javascript:void(0)" onclick="if(confirm('您确定要删除吗?')){location.href='<?php echo SELLER_SITE_URL.'/activity/del?id='.$v['id']; ?>'}">删除</a>
+            <a href="<?php echo SELLER_SITE_URL.'/activity_reg/add?id='.$v['id']; ?>">编辑</a> | 
+            <a href="javascript:void(0)" onclick="if(confirm('您确定要删除吗?')){location.href='<?php echo SELLER_SITE_URL.'/activity_reg/del?id='.$v['id']; ?>'}">删除</a>
           </td>
         </tr>
         <?php endforeach; ?>

@@ -24,6 +24,9 @@
       <h3>满就送活动</h3>
       <ul class="tab-base">
       <li><a href="<?php echo SELLER_SITE_URL.'/activity';?>"><span>活动列表</span></a></li>
+        <li><a href="<?php echo SELLER_SITE_URL.'/activity?type=1';?>"><span>满立减</span></a></li>
+        <li><a href="<?php echo SELLER_SITE_URL.'/activity?type=2';?>"><span>满立折</span></a></li>
+        <li><a href="<?php echo SELLER_SITE_URL.'/activity?type=3';?>"><span>限时折扣</span></a></li>
       <li><a href="JavaScript:void(0);" class="current"><span>添加活动</span></a></li>
      </ul>
     </div>
@@ -52,16 +55,16 @@
         </tr>
         <tr class="noborder">
           <td class="vatop rowform w600"><select name="is_limit_site" id="is_limit_site">
-              <option value="2">不限</option>
-              <option value="1">限定加油站</option>
+              <option value="2"<?php if(!empty($info) && $info['is_limit_site']==2) echo ' selected';?>>不限</option>
+              <option value="1"<?php if(!empty($info) && $info['is_limit_site']==1) echo ' selected';?>>限定加油站</option>
             </select>
-            <div class="fn-hide" id="fixed-site">
-              <input type="hidden" name="site_ids" id="site_ids">
+            <div class="<?php if(!empty($info) && $info['is_limit_site']!=1) echo 'fn-hide';?>" id="fixed-site">
+              <input type="hidden" name="site_ids" id="site_ids" value="<?php echo !empty($info)?$info['site_ids']:'';?>">
               <div class="site-select com-plane-select fn-clear fn-mt15 fn-mb15 rowform">
                 <ul class="fn-clear fn-fl">
-                    <li data-value="11" class="item">加油站1</li>
-                    <li data-value="12" class="item">加油站2</li>
-                    <li data-value="13" class="item">加油站3</li>
+                  <?php foreach($site_list as $v):?>
+                    <li data-value="<?php echo $v['id']?>" class="item<?php if(!empty($info) && strpos(','.$info['site_ids'].',', ','.$v['id'].',')!== false ) echo ' item-selected';?>"><?php echo $v['site_name'];?></li>
+                  <?php endforeach;?>
                 </ul>
               </div>
             </div>
@@ -97,7 +100,7 @@
               <option value="2"<?php if(!empty($info) && $info['is_period']==2) echo ' selected'?>>任意时段</option>
               <option value="1"<?php if(!empty($info) && $info['is_period']==1) echo ' selected'?>>指定时段</option>
             </select>
-            <div class="<?php if(!empty($info)&&$info['is_period']==2) echo 'fn-hide';?>" id="fixed-time">
+            <div class="<?php if(empty($info) || (!empty($info)&&$info['is_period']==2)) echo 'fn-hide';?>" id="fixed-time">
               <input type="hidden" name="weekdays" id="weekdays" value="<?php echo !empty($info)?$info['weekdays']:'';?>">
               <div class="weekdays-select com-plane-select fn-clear fn-mt15 fn-mb15 rowform" style="width:500px">
                 <ul class="fn-clear fn-fl">
@@ -148,12 +151,15 @@
                 <ul class="fn-clear fn-fl">
                   <?php if(empty($info)):?>
                     <li data-value="1" class="item item-selected">满立减</li>
-                    <li data-value="2" class="item">折扣</li>
+                    <li data-value="2" class="item">满立折</li>
+                    <li data-value="3" class="item">限时折扣</li>
                   <?php else:?>
                     <?php if($info['type']==1):?>
                       <li data-value="1" class="item item-selected">满立减</li>
-                    <?php else:?>
-                      <li data-value="2" class="item item-selected">折扣</li>
+                    <?php elseif($info['type']==2):?>
+                      <li data-value="2" class="item item-selected">满立折</li>
+                    <?php elseif($info['type']==3):?>
+                      <li data-value="3" class="item item-selected">限时折扣</li>
                     <?php endif;?>
                   <?php endif;?>
                 </ul>
@@ -179,7 +185,7 @@
           </td>
           <td class="vatop tips"></td>
         </tr>
-        <tr class="trStepList noborder<?php if(!empty($info) && $info['type']!=2) echo ' fn-hide';?>" id="trStepList2">
+        <tr class="trStepList noborder<?php if(empty($info) || (!empty($info) && $info['type']!=2)) echo ' fn-hide';?>" id="trStepList2">
           <td class="vatop rowform" id="tdStepList2">
               最高优惠 <input type="text" id="discount_top_amount" name="discount_top_amount" class="w100" value="<?php echo !empty($info)?$info['discount_top_amount']:'';?>" > 元<br /><br />
               <?php if( !empty($info) && $info['type']==2 && !empty($discount_list)):
@@ -188,6 +194,22 @@
                 <input type="hidden" name="step[<?php echo $v['id']?>][type]" value="2">消费满 
                 <input name="step[<?php echo $v['id']?>][order_amount]" type="text" value="<?php echo $v['order_amount']?>" class="w48"> 元, 
                 打折 <input name="step[<?php echo $v['id']?>][discount_percent]" type="text" value="<?php echo $v['discount_percent']*100;?>" class="w36"> % 
+                &nbsp;&nbsp;<input type="button" value="-" name="btnStepDel" nctype="<?php echo $v['id']?>" act_id="<?php echo $v['act_id'];?>">
+              </div>
+            <?php endforeach;
+              endif; ?>
+
+          </td>
+          <td class="vatop tips"></td>
+        </tr>
+        <tr class="trStepList noborder<?php if(empty($info) || (!empty($info) && $info['type']!=3)) echo ' fn-hide';?>" id="trStepList3">
+          <td class="vatop rowform" id="tdStepList3">
+              <?php if( !empty($info) && $info['type']==3 && !empty($discount_list)):
+              foreach($discount_list as $k => $v):?>
+              <div class="step_<?php echo $v['id']?>">
+                <input type="hidden" name="step[<?php echo $v['id']?>][type]" value="3">油品 
+                <input name="step[<?php echo $v['id']?>][oil_no]" type="text" value="<?php echo $v['oil_no']?>" class="w48"> 号, 
+                ￥ <input name="step[<?php echo $v['id']?>][price]" type="text" value="<?php echo $v['price'];?>" class="w36"> 元/L
                 &nbsp;&nbsp;<input type="button" value="-" name="btnStepDel" nctype="<?php echo $v['id']?>" act_id="<?php echo $v['act_id'];?>">
               </div>
             <?php endforeach;
@@ -260,8 +282,10 @@ $(document).ready(function(){
     var div = '';
     if(type==1){
       div = '<div class="step_'+i+'"><input type="hidden" name="step['+i+'][type]" value="'+type+'">消费满 <input name="step['+i+'][order_amount]" type="text" value="" class="w48"> 元, 立减 <input name="step['+i+'][discount_amount]" type="text" value="" class="w36"> 元 &nbsp;&nbsp;<input type="button" value="-" name="btnStepDel" nctype="'+i+'" /></div>';
-    }else{
+    }else if(type==2){
       div = '<div class="step_'+i+'"><input type="hidden" name="step['+i+'][type]" value="'+type+'">消费满 <input name="step['+i+'][order_amount]" type="text" value="" class="w48"> 元, 打折 <input name="step['+i+'][discount_percent]" type="text" value="" class="w36"> % &nbsp;&nbsp;<input type="button" value="-" name="btnStepDel" nctype="'+i+'" /></div>';
+    }else if(type==3){
+      div = '<div class="step_'+i+'"><input type="hidden" name="step['+i+'][type]" value="'+type+'">油品 <input name="step['+i+'][oil_no]" type="text" value="" class="w48"> 号, ￥ <input name="step['+i+'][price]" type="text" value="" class="w36"> 元/L &nbsp;&nbsp;<input type="button" value="-" name="btnStepDel" nctype="'+i+'" /></div>';
     }
 
     $("#tdStepList"+type).append(div);
@@ -278,11 +302,13 @@ $(document).ready(function(){
     }
 
     var act_id = $(this).attr('act_id');
+    var type = $('#discount_type').val();
     $.ajax({
         url: "<?php echo SELLER_SITE_URL;?>/activity/ajax_step_del",
         data:{
           step_id:step_id,
-          act_id:act_id
+          act_id:act_id,
+          type:type
         },  
         type:'post',
         success: function(data){
